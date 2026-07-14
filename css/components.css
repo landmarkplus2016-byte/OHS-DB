@@ -1,0 +1,8 @@
+/* ==========================================================================
+   components.css — reusable UI components
+   Will contain: buttons (.btn, .btn-primary, .btn-ghost, .btn-danger, .btn-sm,
+   .btn-lg), cards (.card), badges (.badge, cert-state + verdict variants),
+   inputs (.field), tables (.tbl), tabs (.tabs/.tab), modal (.overlay/.modal),
+   toast (.toast), theme swatches (.swatches/.swatch), and the officer verdict
+   card + sync strip. Populated in Stage 2.
+   ========================================================================== */
