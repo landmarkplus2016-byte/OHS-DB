@@ -23,6 +23,7 @@ export const en = {
   sign_in: 'Sign in',
   invalid_creds: 'Invalid username or password',
   inactive_acct: 'This account is inactive',
+  admin_only: 'Desktop app is admin-only. Officers use the mobile app URL.',
 
   // ---------- KPIs / dashboard ----------
   kpi_total_field: 'Field employees',
