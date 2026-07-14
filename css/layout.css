@@ -1,6 +1,117 @@
 /* ==========================================================================
-   layout.css — app shell structure
-   Will contain: admin desktop shell (.app, .sidebar, .side-logo, .nav,
-   .side-bottom, .main, .topbar, .content) and the officer mobile shell
-   (.phone, .hbar, .sync-strip, .body). Populated in Stage 2.
+   layout.css — app shell structure.
+   Admin desktop shell: .app, .sidebar (+ .side-logo, .nav, .side-bottom,
+   lang-toggle, userchip, signout), .main, .topbar, .content.
+   Officer mobile shell (.phone-shell, .officer-header, ...) lands in Stage 9.
+   Values lifted from design/ohs_admin_prototype.html.
    ========================================================================== */
+
+/* ---------- Shell skeleton ---------- */
+.app { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 230px;
+  background: var(--navy);
+  color: var(--navy-text);
+  display: flex;
+  flex-direction: column;
+  border-inline-end: 1px solid var(--navy-border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.side-logo { padding: 20px 22px; border-block-end: 1px solid var(--navy-border); }
+.side-logo .mark { color: var(--primary); font-weight: 800; font-size: 20px; letter-spacing: .5px; }
+.side-logo .name { color: var(--navy-text-strong); font-weight: 700; font-size: 15px; margin-top: 2px; }
+.side-logo .sub { color: var(--navy-muted); font-size: 11px; margin-top: 2px; }
+
+.nav { padding: 12px 0; flex: 1; overflow-y: auto; }
+.nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px;
+  color: var(--navy-text);
+  text-decoration: none;
+  font-size: 13.5px;
+  border-inline-start: 3px solid transparent;
+}
+.nav a:hover { background: rgba(255, 255, 255, .04); color: var(--navy-text-strong); }
+.nav a.active {
+  background: rgba(255, 255, 255, .08);
+  color: var(--navy-text-strong);
+  border-inline-start-color: var(--primary);
+}
+.nav a .ic { width: 16px; text-align: center; opacity: .8; }
+
+.side-bottom { padding: 14px 22px; border-block-start: 1px solid var(--navy-border); }
+
+/* Language toggle (sidebar) */
+.lang-toggle { display: flex; gap: 6px; margin-bottom: 12px; }
+.lang-toggle button {
+  flex: 1;
+  background: transparent;
+  color: var(--navy-text);
+  border: 1px solid var(--navy-border);
+  border-radius: 6px;
+  padding: 5px;
+  font-size: 12px;
+}
+.lang-toggle button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* User chip + sign out (sidebar) */
+.userchip { display: flex; align-items: center; gap: 9px; color: var(--navy-text); }
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+}
+.userchip .who { font-size: 12.5px; color: var(--navy-text-strong); }
+.userchip .role { font-size: 10.5px; color: var(--navy-muted); }
+.side-signout {
+  margin-top: 10px;
+  background: transparent;
+  color: var(--navy-muted);
+  border: none;
+  font-size: 12px;
+  text-align: start;
+  padding: 0;
+  text-decoration: underline;
+}
+
+/* ---------- Main column ---------- */
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.topbar {
+  background: #fff;
+  border-block-end: 1px solid var(--border);
+  padding: 16px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 9;
+}
+.topbar .title { font-weight: 700; font-size: 18px; }
+.topbar .sub { color: var(--text2); font-size: 12.5px; margin-top: 1px; }
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+.dirty-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--warning);
+  border-radius: 50%;
+  display: inline-block;
+  margin-inline-end: 6px;
+}
+.dirty-txt { color: var(--warning); font-size: 12px; }
+
+.content { padding: 26px; flex: 1; }

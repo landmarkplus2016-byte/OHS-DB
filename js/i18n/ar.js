@@ -34,7 +34,8 @@ export const ar = {
   chart_by_state: 'حالة الالتزام',
   chart_by_sub: 'العدد حسب المقاول الفرعي',
   recent_activity: 'آخر التحديثات',
-  save_to_drive_note: 'لا تنسَ رفع الملف المُصدّر إلى Google Drive',
+  export_json: 'تصدير JSON',
+  save_to_drive_note: 'تم التنزيل — اسحبه إلى Google Drive',
 
   // ---------- Employee list ----------
   add_employee: 'إضافة موظف',

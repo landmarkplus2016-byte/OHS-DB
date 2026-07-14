@@ -35,7 +35,8 @@ export const en = {
   chart_by_state: 'Compliance state',
   chart_by_sub: 'Headcount by subcontractor',
   recent_activity: 'Recently updated',
-  save_to_drive_note: 'Remember to upload the exported file to Google Drive',
+  export_json: 'Export JSON',
+  save_to_drive_note: 'Downloaded — drag into Google Drive',
 
   // ---------- Employee list ----------
   add_employee: 'Add employee',

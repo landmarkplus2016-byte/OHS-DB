@@ -1,6 +1,135 @@
-// render.js — top-level render entry point.
-// Picks the admin shell or officer shell based on ROUTE. Stub for now.
+// render.js — top-level render entry point. One job: pick the right shell,
+// draw the page for the current ROUTE into #app, then run its event binders.
+//
+// The access guard runs here (before any drawing) so every render path — go(),
+// hashchange, setLanguage(), setTheme() — is guarded. Page render functions are
+// Stage-3 placeholders; each later stage replaces them with the real page
+// modules from the File Map and registers their bind*Events in BINDERS.
+
+import { ROUTE, ROUTE_PARAM, CURRENT_USER } from './state.js';
+import { canAccessRoute } from './utils/permissions.js';
+import { go } from './router.js';
+import { t } from './i18n/i18n.js';
+import { renderSidebar, bindSidebarEvents } from './components/sidebar.js';
+import { renderTopbar, bindTopbarEvents } from './components/topbar.js';
+
+// ── placeholder pages (one per route) ───────────────────────────────────────
+// Admin pages return inner content only; render() wraps them in <div class="content">.
+// Real implementations arrive in later stages under js/pages/*.
+
+function pageLogin() { return 'Login placeholder'; }
+function pageDashboard() { return 'Dashboard placeholder'; }
+function pageField() { return 'Field team list placeholder'; }
+function pageFieldNew() { return 'New field employee form placeholder'; }
+function pageSafety() { return 'Safety team list placeholder'; }
+function pageSafetyNew() { return 'New safety employee form placeholder'; }
+function pageEmployeeDetail() { return 'Employee detail placeholder'; }
+function pageEmployeeForm() { return 'Employee edit form placeholder'; }
+function pageRenewals() { return 'Renewals placeholder'; }
+function pageExport() { return 'Export placeholder'; }
+function pageSettings() { return 'Settings placeholder'; }
+
+function pageOfficerLogin() { return '<div class="content">Officer login placeholder</div>'; }
+function pageOfficerHome() { return '<div class="content">Officer home placeholder</div>'; }
+function pageOfficerVerdict() { return '<div class="content">Officer verdict placeholder</div>'; }
+function pageOfficerLocked() { return '<div class="content">Officer locked placeholder</div>'; }
+
+// route name -> page render function.
+const PAGES = {
+  login: pageLogin,
+  dashboard: pageDashboard,
+  field: pageField,
+  'field/new': pageFieldNew,
+  safety: pageSafety,
+  'safety/new': pageSafetyNew,
+  employee: pageEmployeeDetail,
+  'employee/edit': pageEmployeeForm,
+  renewals: pageRenewals,
+  export: pageExport,
+  settings: pageSettings,
+
+  check: pageOfficerLogin,
+  'check/home': pageOfficerHome,
+  'check/employee': pageOfficerVerdict,
+  'check/locked': pageOfficerLocked,
+};
+
+// route name -> optional bind<Name>Events function for the page body. Empty in
+// Stage 3; each stage registers its page's binder here as it lands.
+const BINDERS = {};
+
+// Topbar title/subtitle for an admin route. Employee routes use the id param as
+// the title (data, not translatable); everything else uses an i18n key.
+function adminTopbarMeta(route) {
+  const byKey = {
+    dashboard: 'nav_dashboard',
+    field: 'nav_field',
+    'field/new': 'add_employee',
+    safety: 'nav_safety',
+    'safety/new': 'add_employee',
+    renewals: 'nav_renewals',
+    export: 'nav_export',
+    settings: 'nav_settings',
+  };
+  if (route === 'employee') return { title: ROUTE_PARAM || '', sub: '' };
+  if (route === 'employee/edit') return { title: ROUTE_PARAM || '', sub: t('edit') };
+  return { title: t(byKey[route] || 'app_name'), sub: '' };
+}
+
+// ── render ──────────────────────────────────────────────────────────────────
 
 export function render() {
-  document.getElementById('app').innerHTML = 'OHS Database — loading...';
+  const app = document.getElementById('app');
+  if (!app) return;
+
+  // Root '#/' resolves to a concrete destination based on auth.
+  if (ROUTE === '') {
+    go(CURRENT_USER ? 'dashboard' : 'login');
+    return;
+  }
+
+  // Access guard — runs before any drawing.
+  const access = canAccessRoute(CURRENT_USER, ROUTE);
+  if (!access.ok) {
+    go(access.redirect);
+    return;
+  }
+
+  // Unknown route — send somewhere safe.
+  const pageFn = PAGES[ROUTE];
+  if (!pageFn) {
+    go(CURRENT_USER ? 'dashboard' : 'login');
+    return;
+  }
+
+  const content = pageFn();
+
+  if (String(ROUTE).startsWith('check')) {
+    // Officer mobile shell (placeholder until Stage 9).
+    app.innerHTML = `
+      <div class="phone-shell">
+        <header class="officer-header">OHS Field Check</header>
+        ${content}
+      </div>`;
+  } else if (!CURRENT_USER) {
+    // Login page — no shell.
+    app.innerHTML = content;
+  } else {
+    // Admin desktop shell: sidebar + topbar + content.
+    const { title, sub } = adminTopbarMeta(ROUTE);
+    app.innerHTML = `
+      <div class="app">
+        ${renderSidebar()}
+        <div class="main">
+          ${renderTopbar(title, sub, '')}
+          <div class="content">${content}</div>
+        </div>
+      </div>`;
+    bindSidebarEvents();
+    bindTopbarEvents();
+  }
+
+  // Attach page-body listeners, if this page has a binder.
+  const bind = BINDERS[ROUTE];
+  if (typeof bind === 'function') bind();
 }
