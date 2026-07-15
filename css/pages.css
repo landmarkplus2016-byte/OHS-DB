@@ -598,6 +598,9 @@
   cursor: pointer;
   line-height: 1;
 }
+/* The glyph is directional: inset-inline-start moves the button to the right in
+   RTL, so the arrow must mirror too or it points at the screen edge. */
+[dir="rtl"] .verdict-back { transform: scaleX(-1); }
 .verdict-icon { font-size: 66px; text-align: center; margin: 8px 0 4px; line-height: 1; }
 .verdict-label { font-size: 26px; font-weight: 800; text-align: center; letter-spacing: .5px; }
 .verdict-sub { font-size: 14px; text-align: center; opacity: .9; margin-top: 4px; }

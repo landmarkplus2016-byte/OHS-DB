@@ -48,7 +48,7 @@ export function renderOfficerVerdictPage() {
 
   return `
     <div class="verdict-hero ${v.verdict}">
-      <button class="verdict-back" data-action="verdict-back">←</button>
+      <button class="verdict-back" data-action="verdict-back" aria-label="${t('back')}">←</button>
       <div class="verdict-icon">${VERDICT_ICONS[v.verdict]}</div>
       <div class="verdict-label">${t('verdict_' + v.verdict)}</div>
       <div class="verdict-sub">${t('verdict_sub_' + v.verdict)}</div>
