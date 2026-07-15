@@ -12,16 +12,15 @@ import { go } from './router.js';
 import { t } from './i18n/i18n.js';
 import { renderSidebar, bindSidebarEvents } from './components/sidebar.js';
 import { renderTopbar, bindTopbarEvents } from './components/topbar.js';
+import { renderLoginPage, bindLoginPageEvents } from './pages/loginPage.js';
+import { renderEmployeeListPage, employeeListTopbar, bindEmployeeListPageEvents } from './pages/employeeListPage.js';
 
 // ── placeholder pages (one per route) ───────────────────────────────────────
 // Admin pages return inner content only; render() wraps them in <div class="content">.
 // Real implementations arrive in later stages under js/pages/*.
 
-function pageLogin() { return 'Login placeholder'; }
 function pageDashboard() { return 'Dashboard placeholder'; }
-function pageField() { return 'Field team list placeholder'; }
 function pageFieldNew() { return 'New field employee form placeholder'; }
-function pageSafety() { return 'Safety team list placeholder'; }
 function pageSafetyNew() { return 'New safety employee form placeholder'; }
 function pageEmployeeDetail() { return 'Employee detail placeholder'; }
 function pageEmployeeForm() { return 'Employee edit form placeholder'; }
@@ -36,11 +35,11 @@ function pageOfficerLocked() { return '<div class="content">Officer locked place
 
 // route name -> page render function.
 const PAGES = {
-  login: pageLogin,
+  login: renderLoginPage,
   dashboard: pageDashboard,
-  field: pageField,
+  field: () => renderEmployeeListPage('field'),
   'field/new': pageFieldNew,
-  safety: pageSafety,
+  safety: () => renderEmployeeListPage('safety'),
   'safety/new': pageSafetyNew,
   employee: pageEmployeeDetail,
   'employee/edit': pageEmployeeForm,
@@ -54,9 +53,21 @@ const PAGES = {
   'check/locked': pageOfficerLocked,
 };
 
-// route name -> optional bind<Name>Events function for the page body. Empty in
-// Stage 3; each stage registers its page's binder here as it lands.
-const BINDERS = {};
+// route name -> optional bind<Name>Events function for the page body. Each stage
+// registers its page's binder here as it lands.
+const BINDERS = {
+  login: bindLoginPageEvents,
+  field: bindEmployeeListPageEvents,
+  safety: bindEmployeeListPageEvents,
+};
+
+// route name -> function returning { title, sub, actions } for the topbar, when
+// a page needs a dynamic subtitle or its own action buttons. Falls back to
+// adminTopbarMeta for routes not listed here.
+const TOPBARS = {
+  field: () => employeeListTopbar('field'),
+  safety: () => employeeListTopbar('safety'),
+};
 
 // Topbar title/subtitle for an admin route. Employee routes use the id param as
 // the title (data, not translatable); everything else uses an i18n key.
@@ -115,13 +126,15 @@ export function render() {
     // Login page — no shell.
     app.innerHTML = content;
   } else {
-    // Admin desktop shell: sidebar + topbar + content.
-    const { title, sub } = adminTopbarMeta(ROUTE);
+    // Admin desktop shell: sidebar + topbar + content. A page may supply its own
+    // topbar (dynamic subtitle + action buttons) via TOPBARS; otherwise a static
+    // title is used.
+    const meta = TOPBARS[ROUTE] ? TOPBARS[ROUTE]() : adminTopbarMeta(ROUTE);
     app.innerHTML = `
       <div class="app">
         ${renderSidebar()}
         <div class="main">
-          ${renderTopbar(title, sub, '')}
+          ${renderTopbar(meta.title, meta.sub, meta.actions || '')}
           <div class="content">${content}</div>
         </div>
       </div>`;

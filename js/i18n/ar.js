@@ -23,6 +23,11 @@ export const ar = {
   invalid_creds: 'اسم المستخدم أو كلمة السر غير صحيحة',
   inactive_acct: 'هذا الحساب غير مُفعّل',
   admin_only: 'تطبيق سطح المكتب للمدير فقط. يستخدم الضباط رابط تطبيق الهاتف.',
+  reupload: 'إعادة الرفع',
+  officer_hint: 'ضباط السلامة: اذهبوا إلى',
+  load_err_json: 'تعذّر قراءة الملف — ليس JSON صالحاً.',
+  load_err_shape: 'هذا الملف تنقصه بيانات مطلوبة (meta، users، employees).',
+  load_err_generic: 'تعذّر تحميل الملف.',
 
   // ---------- KPIs / dashboard ----------
   kpi_total_field: 'موظفو الفريق الميداني',
@@ -56,6 +61,16 @@ export const ar = {
   archive: 'أرشفة',
   unarchive: 'إلغاء الأرشفة',
   delete: 'حذف',
+  search_label: 'بحث',
+  show_archived: 'إظهار المؤرشفين',
+  archived_label: 'مؤرشف',
+  col_quals: 'المؤهلات',
+  n_employees: '{n} موظف',
+  n_expired: '{n} منتهية',
+  list_empty: 'لا يوجد موظفون مطابقون للتصفية.',
+  page_x_of_y: 'صفحة {x} من {y}',
+  prev: 'السابق',
+  next: 'التالي',
 
   // ---------- Employee detail / form ----------
   section_personal: 'البيانات الشخصية',

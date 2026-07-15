@@ -20,8 +20,8 @@
 .btn-primary:hover { background: var(--primary-dark); }
 .btn-ghost { background: transparent; border-color: var(--border); color: var(--text2); }
 .btn-ghost:hover { background: var(--bg); }
-.btn-danger { background: #fbeaea; color: var(--danger); }
-.btn-danger:hover { background: #f6d5d5; }
+.btn-danger { background: var(--danger-soft); color: var(--danger); }
+.btn-danger:hover { background: var(--danger-soft-hover); }
 .btn-sm { padding: 6px 10px; font-size: 12px; }
 
 /* ---------- Theme swatches ---------- */
@@ -44,7 +44,7 @@
   position: fixed;
   bottom: 20px;
   inset-inline-end: 20px;
-  background: #1a1d2e;
+  background: var(--text);
   color: #fff;
   padding: 12px 18px;
   border-radius: 9px;
@@ -52,5 +52,140 @@
   box-shadow: var(--shadow-md);
   z-index: 99;
 }
-.toast-success { background: var(--success); }
-.toast-error { background: var(--danger); }
+/* Subtle type accents: dark base kept, a colored inline-start bar signals type. */
+.toast-success { border-inline-start: 4px solid var(--success); }
+.toast-error { border-inline-start: 4px solid var(--danger); }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  padding: 18px;
+}
+.card h3 { margin: 0 0 10px; font-size: 15px; font-weight: 700; }
+
+/* ---------- Inputs ---------- */
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.field label { font-size: 12px; color: var(--text2); font-weight: 600; }
+.field input,
+.field select,
+.field textarea {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 9px 10px;
+  background: var(--card);
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.field.inline { flex-direction: row; align-items: center; gap: 8px; }
+
+/* ---------- Badges ---------- */
+/* Larger aggregate pill (compliance worst-state, verdict, employment status). */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+/* Compliance worst-state (6 states). */
+.badge.st-valid   { background: var(--cleared-bg); color: var(--cleared-dark); }
+.badge.st-plan    { background: var(--plan-bg);    color: var(--plan-tx); }
+.badge.st-soon    { background: var(--warn-bg);    color: var(--warn-dark); }
+.badge.st-urgent  { background: var(--urgent-bg);  color: var(--urgent-tx); }
+.badge.st-expired { background: var(--blocked-bg); color: var(--blocked-dark); }
+.badge.st-missing { background: var(--missing-bg); color: var(--missing-tx); }
+/* Site-check verdict. */
+.badge.v-cleared { background: var(--cleared-bg); color: var(--cleared-dark); }
+.badge.v-warning { background: var(--warn-bg);    color: var(--warn-dark); }
+.badge.v-blocked { background: var(--blocked-bg); color: var(--blocked-dark); }
+/* Employment status. */
+.badge.emp-active   { background: var(--cleared-bg); color: var(--cleared-dark); }
+.badge.emp-inactive { background: var(--missing-bg); color: var(--missing-tx); }
+
+/* Small per-certificate state pill (cert rows, verdict cert list). */
+.cert-state {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.cert-state.cs-valid   { background: var(--cleared-bg); color: var(--cleared-dark); }
+.cert-state.cs-plan    { background: var(--plan-bg);    color: var(--plan-tx); }
+.cert-state.cs-soon    { background: var(--warn-bg);    color: var(--warn-dark); }
+.cert-state.cs-urgent  { background: var(--urgent-bg);  color: var(--urgent-tx); }
+.cert-state.cs-expired { background: var(--blocked-bg); color: var(--blocked-dark); }
+.cert-state.cs-missing { background: var(--missing-bg); color: var(--missing-tx); }
+
+/* ---------- Tables ---------- */
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+.tbl th,
+.tbl td {
+  padding: 11px 14px;
+  text-align: start;
+  border-block-end: 1px solid var(--border);
+  font-size: 13px;
+}
+.tbl th {
+  background: var(--surface-alt);
+  color: var(--text2);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.tbl tr:last-child td { border-block-end: none; }
+.tbl tr:hover td { background: var(--surface-alt); }
+.tbl .row-clickable { cursor: pointer; }
+
+/* ---------- Filter bar ---------- */
+.filter-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 14px;
+  margin-bottom: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+.filter-bar .field { margin-bottom: 0; min-width: 180px; }
+.filter-bar .count { margin-inline-start: auto; color: var(--text2); font-size: 12.5px; }
+
+/* ---------- Modal ---------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+.modal {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 22px;
+  max-width: 560px;
+  width: 92vw;
+  max-height: 88vh;
+  overflow: auto;
+}
+.modal h3 { margin: 0 0 6px; font-size: 16px; }
+.modal .mfoot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }

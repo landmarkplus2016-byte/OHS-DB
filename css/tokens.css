@@ -17,6 +17,8 @@
   --success: #16a34a;
   --warning: #d97706;
   --danger: #e05252;
+  --danger-soft: #fbeaea;         /* btn-danger background */
+  --danger-soft-hover: #f6d5d5;   /* btn-danger hover */
   --purple: #7c3aed;
   --teal: #0d9488;
 
@@ -26,6 +28,11 @@
   --plan-bg:    #fef9c3;  --plan-tx:     #854d0e;
   --urgent-bg:  #ffe4e6;  --urgent-tx:   #9f1239;
   --missing-bg: #f3f4f6;  --missing-tx:  #6b7280;
+
+  --surface-alt: #fafbfd;                 /* subtle zebra/header/hover surface */
+  --overlay:     rgba(20, 22, 40, 0.45);  /* modal backdrop */
+  --login-grad-end: #e8ecf5;              /* login background gradient end stop */
+  --info-bg:     #e0f2fe;  --info-border: #7dd3fc;  --info-tx: #075985;  /* sky info banner */
 
   --radius-card: 14px;
   --radius-control: 8px;

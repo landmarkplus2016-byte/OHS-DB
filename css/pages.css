@@ -3,5 +3,94 @@
    Will contain: dashboard (KPI cards, charts, donut, sparklines), employee
    list filter bar, employee detail grid + cert rows, employee form layout,
    renewals table, export cards, settings tabs/panels, login card, and the
-   officer verdict hero + reasons + cert list. Populated in Stage 2.
+   officer verdict hero + reasons + cert list. Populated incrementally by stage.
+   Values lifted from design/ohs_admin_prototype.html.
    ========================================================================== */
+
+/* ---------- Login ---------- */
+.login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg) 0%, var(--login-grad-end) 100%);
+}
+.login-card {
+  background: var(--card);
+  padding: 34px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  width: 400px;
+  max-width: 92vw;
+}
+.login-card .mark { color: var(--primary); font-weight: 800; font-size: 26px; text-align: center; letter-spacing: 1px; }
+.login-card h1 { margin: 6px 0 4px; font-size: 18px; text-align: center; }
+.login-card .sub { color: var(--text2); font-size: 12.5px; text-align: center; margin-bottom: 22px; }
+.login-card .btn-block { width: 100%; justify-content: center; margin-top: 8px; }
+
+.lang-row { display: flex; gap: 6px; justify-content: center; margin-bottom: 18px; }
+.lang-row .btn.active { border-color: var(--primary); color: var(--primary); }
+
+.upload-box {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  background: var(--surface-alt);
+}
+.upload-box .t { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.upload-box .s { color: var(--text2); font-size: 12px; margin-bottom: 12px; }
+.upload-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  font-size: 12.5px;
+  color: var(--info-tx);
+}
+
+.officer-hint { text-align: center; font-size: 11.5px; color: var(--muted); margin-top: 18px; }
+.officer-hint a { color: var(--primary); text-decoration: none; }
+
+.err { color: var(--danger); font-size: 12px; margin-top: 6px; }
+.ok { color: var(--success); font-size: 12px; margin-top: 6px; }
+
+/* ---------- Employee list ---------- */
+.filter-bar .field.search { flex: 1; max-width: 340px; }
+.filter-bar .field.check { flex-direction: row; align-items: center; gap: 8px; min-width: 0; }
+.filter-bar .field.check label { font-weight: 500; }
+
+.emp-id-sub { color: var(--muted); font-size: 11.5px; }
+.natid-cell { font-family: ui-monospace, monospace; font-size: 12px; }
+.expired-note { color: var(--danger); font-size: 11px; margin-inline-start: 6px; }
+.tbl tr.row-archived td { opacity: .6; }
+.row-actions { white-space: nowrap; }
+.row-actions .btn { margin-inline-end: 4px; }
+
+.qual-badges { display: flex; gap: 4px; flex-wrap: wrap; }
+.qual-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.list-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: var(--text2);
+}
+.list-pager .pages { display: flex; gap: 8px; align-items: center; }
+.empty-cell { text-align: center; padding: 40px; color: var(--muted); }

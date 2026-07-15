@@ -24,6 +24,11 @@ export const en = {
   invalid_creds: 'Invalid username or password',
   inactive_acct: 'This account is inactive',
   admin_only: 'Desktop app is admin-only. Officers use the mobile app URL.',
+  reupload: 'Re-upload',
+  officer_hint: 'Safety officers: go to',
+  load_err_json: 'Could not read the file — it is not valid JSON.',
+  load_err_shape: 'This file is missing required data (meta, users, employees).',
+  load_err_generic: 'Could not load the file.',
 
   // ---------- KPIs / dashboard ----------
   kpi_total_field: 'Field employees',
@@ -57,6 +62,16 @@ export const en = {
   archive: 'Archive',
   unarchive: 'Unarchive',
   delete: 'Delete',
+  search_label: 'Search',
+  show_archived: 'Show archived',
+  archived_label: 'Archived',
+  col_quals: 'Quals',
+  n_employees: '{n} employees',
+  n_expired: '{n} expired',
+  list_empty: 'No employees match the current filters.',
+  page_x_of_y: 'Page {x} of {y}',
+  prev: 'Previous',
+  next: 'Next',
 
   // ---------- Employee detail / form ----------
   section_personal: 'Personal',
