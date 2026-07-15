@@ -22,14 +22,14 @@ import {
   isEmployeeFormRoute,
   clearEmployeeFormDraft,
 } from './pages/employeeFormPage.js';
+import { renderDashboardPage, dashboardTopbar, bindDashboardPageEvents } from './pages/dashboardPage.js';
+import { renderRenewalsPage, renewalsTopbar, bindRenewalsPageEvents } from './pages/renewalsPage.js';
+import { renderExportPage, exportTopbar, bindExportPageEvents } from './pages/exportPage.js';
 
 // ── placeholder pages (one per route) ───────────────────────────────────────
 // Admin pages return inner content only; render() wraps them in <div class="content">.
 // Real implementations arrive in later stages under js/pages/*.
 
-function pageDashboard() { return 'Dashboard placeholder'; }
-function pageRenewals() { return 'Renewals placeholder'; }
-function pageExport() { return 'Export placeholder'; }
 function pageSettings() { return 'Settings placeholder'; }
 
 function pageOfficerLogin() { return '<div class="content">Officer login placeholder</div>'; }
@@ -40,15 +40,15 @@ function pageOfficerLocked() { return '<div class="content">Officer locked place
 // route name -> page render function.
 const PAGES = {
   login: renderLoginPage,
-  dashboard: pageDashboard,
+  dashboard: renderDashboardPage,
   field: () => renderEmployeeListPage('field'),
   'field/new': renderEmployeeFormPage,
   safety: () => renderEmployeeListPage('safety'),
   'safety/new': renderEmployeeFormPage,
   employee: renderEmployeeDetailPage,
   'employee/edit': renderEmployeeFormPage,
-  renewals: pageRenewals,
-  export: pageExport,
+  renewals: renderRenewalsPage,
+  export: renderExportPage,
   settings: pageSettings,
 
   check: pageOfficerLogin,
@@ -61,6 +61,9 @@ const PAGES = {
 // registers its page's binder here as it lands.
 const BINDERS = {
   login: bindLoginPageEvents,
+  dashboard: bindDashboardPageEvents,
+  renewals: bindRenewalsPageEvents,
+  export: bindExportPageEvents,
   field: bindEmployeeListPageEvents,
   safety: bindEmployeeListPageEvents,
   employee: bindEmployeeDetailPageEvents,
@@ -73,6 +76,9 @@ const BINDERS = {
 // a page needs a dynamic subtitle or its own action buttons. Falls back to
 // adminTopbarMeta for routes not listed here.
 const TOPBARS = {
+  dashboard: dashboardTopbar,
+  renewals: renewalsTopbar,
+  export: exportTopbar,
   field: () => employeeListTopbar('field'),
   safety: () => employeeListTopbar('safety'),
   employee: employeeDetailTopbar,

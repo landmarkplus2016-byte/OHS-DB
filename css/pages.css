@@ -61,6 +61,101 @@
 .err { color: var(--danger); font-size: 12px; margin-top: 6px; }
 .ok { color: var(--success); font-size: 12px; margin-top: 6px; }
 
+/* ---------- Dashboard ---------- */
+/* Upload-to-Drive reminder. Accent gradient, so its text/button ride on
+   --on-hero rather than the normal text tokens. */
+.hero-banner {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: var(--on-hero);
+  padding: 18px 22px;
+  border-radius: var(--radius-card);
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.hero-banner .h { font-weight: 700; font-size: 15px; }
+.hero-banner .s { opacity: .85; font-size: 12.5px; margin-top: 2px; }
+.hero-banner .btn {
+  background: var(--hero-btn-bg);
+  color: var(--on-hero);
+  border-color: var(--hero-btn-border);
+  flex-shrink: 0;
+}
+
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+.kpi {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.kpi .n { font-size: 32px; font-weight: 800; line-height: 1.1; }
+.kpi .l { color: var(--text2); font-size: 12.5px; margin-top: 2px; }
+.kpi.blue .n { color: var(--primary); }
+.kpi.red .n { color: var(--danger); }
+.kpi.amber .n { color: var(--warning); }
+.kpi.green .n { color: var(--success); }
+.kpi-split { display: flex; gap: 14px; margin-top: 8px; font-size: 11.5px; color: var(--muted); }
+.kpi-split b { color: var(--text); }
+
+/* 7-day history strip under a KPI number. Bar heights are set inline as a
+   percentage of the series peak. */
+.spark { display: flex; gap: 2px; align-items: end; height: 26px; margin-top: 8px; }
+.spark span { flex: 1; background: var(--primary-soft); border-radius: 2px; }
+
+.chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.chart-empty { color: var(--muted); font-size: 12.5px; padding: 12px 0; }
+
+/* Horizontal bar chart (expiries by certificate, headcount by subcontractor). */
+.bar-item { margin-bottom: 8px; }
+.bar-head { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 3px; }
+.bar-track { height: 8px; background: var(--chart-track); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; }
+.bar-fill.primary { background: var(--primary); }
+.bar-fill.teal { background: var(--teal); }
+
+/* Donut — segment fills come from these classes, never from inline hex. */
+.donut-wrap { display: flex; align-items: center; gap: 20px; }
+.donut-legend { display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; }
+.donut-hole { fill: var(--card); }
+.donut-total { font-weight: 800; font-size: 18px; fill: var(--text); }
+.donut-cap { font-size: 10px; fill: var(--text2); }
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-inline-end: 7px;
+  vertical-align: middle;
+}
+
+.donut-seg.s-valid,   .legend-dot.s-valid   { fill: var(--state-valid);   background: var(--state-valid); }
+.donut-seg.s-plan,    .legend-dot.s-plan    { fill: var(--state-plan);    background: var(--state-plan); }
+.donut-seg.s-soon,    .legend-dot.s-soon    { fill: var(--state-soon);    background: var(--state-soon); }
+.donut-seg.s-urgent,  .legend-dot.s-urgent  { fill: var(--state-urgent);  background: var(--state-urgent); }
+.donut-seg.s-expired, .legend-dot.s-expired { fill: var(--state-expired); background: var(--state-expired); }
+.donut-seg.s-missing, .legend-dot.s-missing { fill: var(--state-missing); background: var(--state-missing); }
+.donut-seg.s-empty { fill: var(--chart-track); }
+
+/* Recently updated list. */
+.recent-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-block-end: 1px solid var(--border);
+  cursor: pointer;
+}
+.recent-row:last-child { border-block-end: none; }
+.recent-row:hover { background: var(--surface-alt); }
+.recent-row .who { flex: 1; font-size: 12.5px; }
+.recent-row .who .id { color: var(--muted); }
+.recent-row .when { font-size: 11.5px; color: var(--muted); }
+
 /* ---------- Employee list ---------- */
 .filter-bar .field.search { flex: 1; max-width: 340px; }
 .filter-bar .field.check { flex-direction: row; align-items: center; gap: 8px; min-width: 0; }
@@ -94,6 +189,62 @@
 }
 .list-pager .pages { display: flex; gap: 8px; align-items: center; }
 .empty-cell { text-align: center; padding: 40px; color: var(--muted); }
+
+/* ---------- Renewals ---------- */
+/* Each row carries a state tint. It is applied to the cells (not the <tr>) so it
+   beats .tbl tr:hover td, and hover darkens the same tint instead of erasing it. */
+.tbl tr.rnw-row td { background: var(--row-tint, var(--card)); }
+.tbl tr.rnw-row:hover td { background: color-mix(in srgb, var(--row-tint, var(--card)) 93%, var(--text)); }
+
+.rnw-expired { --row-tint: var(--row-expired-bg); }
+.rnw-urgent  { --row-tint: var(--row-urgent-bg); }
+.rnw-soon,
+.rnw-plan    { --row-tint: var(--row-warn-bg); }
+/* valid + missing fall through to the default card background. */
+
+.days-cell { white-space: nowrap; }
+
+/* ---------- Export ---------- */
+.export-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+/* A card is a <button> so disabling it blocks the click and reaches the keyboard
+   for free; these rules undo the default button chrome. */
+.ex-card {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  text-align: start;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  padding: 18px;
+  transition: box-shadow .2s;
+}
+.ex-card:hover:not(:disabled) { box-shadow: var(--shadow-md); }
+.ex-card:disabled { cursor: not-allowed; opacity: .6; }
+
+.ex-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-radius: var(--radius-mobile);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.ex-card:disabled .ex-icon { background: var(--missing-bg); color: var(--missing-tx); }
+
+.ex-name { font-weight: 700; }
+.ex-desc { color: var(--text2); font-size: 12.5px; margin-top: 2px; }
+.ex-warn { color: var(--danger); font-size: 11.5px; margin-top: 6px; }
 
 /* ---------- Employee detail ---------- */
 /* Badge strip above the first section: team, compliance, status, legal. */
@@ -158,7 +309,11 @@
   .cert-list { grid-template-columns: 1fr; }
   .detail-grid { grid-template-columns: repeat(2, 1fr); }
   .two-col { grid-template-columns: 1fr; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .chart-row { grid-template-columns: 1fr; }
+  .export-cards { grid-template-columns: 1fr; }
 }
 @media (max-width: 720px) {
   .detail-grid { grid-template-columns: 1fr; }
+  .kpi-row { grid-template-columns: 1fr; }
 }

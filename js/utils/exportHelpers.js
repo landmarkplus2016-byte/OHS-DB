@@ -5,6 +5,11 @@ import { ALL_CERT_KEYS, CERT_LABEL_KEYS, applicableCerts } from '../constants/fi
 import { t } from '../i18n/i18n.js';
 import { fmtDate, todayISO } from './format.js';
 
+// Export size caps from CLAUDE.md "Export Limits". Shared so every page that
+// offers a download blocks at the same number — never truncate silently.
+export const SPREADSHEET_ROW_CAP = 5000;
+export const PDF_EMPLOYEE_CAP = 100;
+
 // Normalises any date-ish value to a 'YYYY-MM-DD' string (or '' if empty).
 // String-slicing avoids timezone drift on full ISO timestamps.
 function isoDay(s) {
@@ -71,6 +76,37 @@ export function exportToExcel(employees, lang) {
   const wb = window.XLSX.utils.book_new();
   window.XLSX.utils.book_append_sheet(wb, ws, 'Employees');
   window.XLSX.writeFile(wb, `OHS-Export-${todayISO()}.xlsx`);
+}
+
+// One flat object per *renewal* — i.e. per (employee × certificate) pair, not
+// per employee. Used by the renewals page, whose whole subject is the individual
+// expiring certificate rather than the person.
+//
+// `row` is a renewals row: { employee, cert_key, expiry, days_left, state }.
+export function flattenRenewalForExcel(row) {
+  const p = row.employee.personal || {};
+  return {
+    employee_id: row.employee.employee_id || '',
+    national_id: row.employee.national_id || '',
+    name: row.employee.name || '',
+    team: row.employee.team || '',
+    title: p.title || '',
+    subcontractor: p.subcontractor || '',
+    certificate: t(CERT_LABEL_KEYS[row.cert_key]),
+    cert_key: row.cert_key,
+    expiry_date: isoDay(row.expiry),
+    days_left: row.days_left,
+    state: row.state,
+  };
+}
+
+// Downloads an .xlsx of the given renewals rows (one row per renewal).
+export function exportRenewalsToExcel(renewalRows) {
+  const rows = renewalRows.map(flattenRenewalForExcel);
+  const ws = window.XLSX.utils.json_to_sheet(rows);
+  const wb = window.XLSX.utils.book_new();
+  window.XLSX.utils.book_append_sheet(wb, ws, 'Renewals');
+  window.XLSX.writeFile(wb, `OHS-Renewals-${todayISO()}.xlsx`);
 }
 
 // Downloads a .csv with the same columns as the Excel export.

@@ -32,6 +32,25 @@
   --team-field-bg: #e0e7ff;  --team-field-tx: #3730a3;  /* team tag — field */
   --team-safety-bg: #fce7f3; --team-safety-tx: #9d174d;  /* team tag — safety */
 
+  /* Solid chart fills — the badge pastels are too light to read as a donut
+     segment or a sparkline bar, so states get a saturated variant here. */
+  --state-valid: #16a34a;
+  --state-plan: #eab308;
+  --state-soon: #f59e0b;
+  --state-urgent: #f97316;
+  --state-expired: #dc2626;
+  --state-missing: #94a3b8;
+  --chart-track: #eef1f7;                 /* unfilled part of a bar */
+
+  /* Renewals table row tints — much lighter than the badge pastels, so a full
+     row of colour stays readable under black text. */
+  --row-expired-bg: #fef2f2;
+  --row-urgent-bg: #fff7ed;
+  --row-warn-bg: #fefce8;                 /* soon + plan share one tint */
+  --on-hero: #ffffff;                     /* text/icons on the accent hero banner */
+  --hero-btn-bg: rgba(255, 255, 255, .15);
+  --hero-btn-border: rgba(255, 255, 255, .3);
+
   --surface-alt: #fafbfd;                 /* subtle zebra/header/hover surface */
   --overlay:     rgba(20, 22, 40, 0.45);  /* modal backdrop */
   --login-grad-end: #e8ecf5;              /* login background gradient end stop */

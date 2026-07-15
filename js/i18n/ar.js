@@ -30,15 +30,21 @@ export const ar = {
   load_err_generic: 'تعذّر تحميل الملف.',
 
   // ---------- KPIs / dashboard ----------
+  kpi_total_active: 'إجمالي الموظفين النشطين',
   kpi_total_field: 'موظفو الفريق الميداني',
   kpi_total_safety: 'موظفو فريق السلامة',
   kpi_expired: 'شهادات منتهية',
-  kpi_urgent: 'تنتهي خلال ٣٠ يوم',
+  kpi_urgent: 'تنتهي خلال {days} يوم',
   kpi_compliant: 'ملتزمون بالكامل',
-  chart_by_cert: 'الشهادات المنتهية خلال ٩٠ يوم',
+  chart_by_cert: 'الشهادات المنتهية خلال {days} يوم حسب النوع',
   chart_by_state: 'حالة الالتزام',
   chart_by_sub: 'العدد حسب المقاول الفرعي',
+  chart_empty: 'لا توجد بيانات لعرضها',
+  employees_label: 'موظف',
   recent_activity: 'آخر التحديثات',
+  backup_due: 'لا تنسَ رفع الملف المُصدَّر إلى Google Drive',
+  backup_last_ago: 'آخر نسخة احتياطية: منذ {days} يوم ({date})',
+  backup_never: 'لم يتم أخذ نسخة احتياطية بعد',
   export_json: 'تصدير JSON',
   save_to_drive_note: 'تم التنزيل — اسحبه إلى Google Drive',
 
@@ -201,6 +207,9 @@ export const ar = {
   ex_desc_pdf: 'بطاقة لكل موظف بجميع الشهادات',
   export_limit_pdf: 'تصدير PDF محدود بـ ١٠٠ موظف. ضيّق نطاق التصفية للمتابعة.',
   export_limit_spreadsheet: 'تصدير الجداول محدود بـ ٥٠٠٠ موظف. ضيّق نطاق التصفية للمتابعة.',
+  export_empty: 'لا يوجد موظفون مطابقون للفلاتر الحالية — لا شيء للتصدير.',
+  n_employees_match: '{n} موظف مطابق',
+  include_archived: 'إظهار المؤرشفين',
 
   // ---------- Renewals ----------
   renewals_intro: 'مرتبة حسب أقرب انتهاء. صفِّ لتخطيط أعمال التجديد.',
@@ -208,6 +217,12 @@ export const ar = {
   next_n_days: 'خلال {days} يوم',
   all_including_expired: 'الكل (بما في ذلك المنتهية)',
   team_label: 'الفريق',
+  filter_cert: 'الشهادة',
+  col_days: 'الأيام',
+  col_status: 'الحالة',
+  n_renewals: '{n} تجديد',
+  renewals_empty: 'لا توجد تجديدات مطابقة للفلاتر الحالية.',
+  export_list_excel: 'تصدير هذه القائمة إلى Excel',
 
   // ---------- Officer app ----------
   as_of: 'البيانات حتى',

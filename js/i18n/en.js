@@ -31,15 +31,21 @@ export const en = {
   load_err_generic: 'Could not load the file.',
 
   // ---------- KPIs / dashboard ----------
+  kpi_total_active: 'Total active employees',
   kpi_total_field: 'Field employees',
   kpi_total_safety: 'Safety employees',
   kpi_expired: 'Certs expired',
-  kpi_urgent: 'Expiring in ≤30 days',
+  kpi_urgent: 'Expiring in ≤{days} days',
   kpi_compliant: 'Fully compliant',
-  chart_by_cert: 'Expiries in next 90 days by certificate',
+  chart_by_cert: 'Expiries in next {days} days by certificate',
   chart_by_state: 'Compliance state',
   chart_by_sub: 'Headcount by subcontractor',
+  chart_empty: 'Nothing to show yet',
+  employees_label: 'employees',
   recent_activity: 'Recently updated',
+  backup_due: 'Remember to upload the exported file to Google Drive',
+  backup_last_ago: 'Last backup: {days} days ago ({date})',
+  backup_never: 'No backup taken yet',
   export_json: 'Export JSON',
   save_to_drive_note: 'Downloaded — drag into Google Drive',
 
@@ -202,6 +208,9 @@ export const en = {
   ex_desc_pdf: 'One card per employee with all certificates',
   export_limit_pdf: 'PDF export is capped at 100 employees. Narrow your filters to continue.',
   export_limit_spreadsheet: 'Spreadsheet export is capped at 5,000 employees. Narrow your filters to continue.',
+  export_empty: 'No employees match the current filters — nothing to export.',
+  n_employees_match: '{n} employees match',
+  include_archived: 'Include archived',
 
   // ---------- Renewals ----------
   renewals_intro: 'Sorted by soonest expiry. Filter to plan your renewal work.',
@@ -209,6 +218,12 @@ export const en = {
   next_n_days: 'Next {days} days',
   all_including_expired: 'All (including expired)',
   team_label: 'Team',
+  filter_cert: 'Certificate',
+  col_days: 'Days',
+  col_status: 'State',
+  n_renewals: '{n} renewals',
+  renewals_empty: 'No renewals match the current filters.',
+  export_list_excel: 'Export this list to Excel',
 
   // ---------- Officer app ----------
   as_of: 'Data as of',
