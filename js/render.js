@@ -12,6 +12,8 @@ import { go } from './router.js';
 import { t } from './i18n/i18n.js';
 import { renderSidebar, bindSidebarEvents } from './components/sidebar.js';
 import { renderTopbar, bindTopbarEvents } from './components/topbar.js';
+import { renderOfficerHeader, bindOfficerHeaderEvents } from './components/officerHeader.js';
+import { renderOfficerSyncStrip, bindOfficerSyncStripEvents } from './components/officerSyncStrip.js';
 import { renderLoginPage, bindLoginPageEvents } from './pages/loginPage.js';
 import { renderEmployeeListPage, employeeListTopbar, bindEmployeeListPageEvents } from './pages/employeeListPage.js';
 import { renderEmployeeDetailPage, employeeDetailTopbar, bindEmployeeDetailPageEvents } from './pages/employeeDetailPage.js';
@@ -26,15 +28,11 @@ import { renderDashboardPage, dashboardTopbar, bindDashboardPageEvents } from '.
 import { renderRenewalsPage, renewalsTopbar, bindRenewalsPageEvents } from './pages/renewalsPage.js';
 import { renderExportPage, exportTopbar, bindExportPageEvents } from './pages/exportPage.js';
 import { renderSettingsPage, bindSettingsPageEvents } from './pages/settingsPage.js';
-
-// ── placeholder pages (one per route) ───────────────────────────────────────
-// Admin pages return inner content only; render() wraps them in <div class="content">.
-// Real implementations arrive in later stages under js/pages/*.
-
-function pageOfficerLogin() { return '<div class="content">Officer login placeholder</div>'; }
-function pageOfficerHome() { return '<div class="content">Officer home placeholder</div>'; }
-function pageOfficerVerdict() { return '<div class="content">Officer verdict placeholder</div>'; }
-function pageOfficerLocked() { return '<div class="content">Officer locked placeholder</div>'; }
+import { renderOfficerLoginPage, bindOfficerLoginPageEvents } from './pages/officerLoginPage.js';
+import { renderOfficerHomePage, bindOfficerHomePageEvents, clearOfficerHomeState } from './pages/officerHomePage.js';
+import { renderOfficerVerdictPage, bindOfficerVerdictPageEvents } from './pages/officerVerdictPage.js';
+import { renderOfficerLockedPage, bindOfficerLockedPageEvents } from './pages/officerLockedPage.js';
+import { OFFICER_STATE, isCacheStale } from './data/officerSync.js';
 
 // route name -> page render function.
 const PAGES = {
@@ -49,12 +47,43 @@ const PAGES = {
   renewals: renderRenewalsPage,
   export: renderExportPage,
   settings: renderSettingsPage,
-
-  check: pageOfficerLogin,
-  'check/home': pageOfficerHome,
-  'check/employee': pageOfficerVerdict,
-  'check/locked': pageOfficerLocked,
 };
+
+// ── officer mobile shell ────────────────────────────────────────────────────
+// The officer app is a separate world: its own session (OFFICER_STATE, not
+// CURRENT_USER), its own chrome, and its own staleness guard. Everything below
+// is keyed by the same '#/check/*' route names the admin PAGES map uses.
+
+const OFFICER_PAGES = {
+  check: renderOfficerLoginPage,
+  'check/home': renderOfficerHomePage,
+  'check/employee': renderOfficerVerdictPage,
+  'check/locked': renderOfficerLockedPage,
+};
+
+const OFFICER_BINDERS = {
+  check: bindOfficerLoginPageEvents,
+  'check/home': bindOfficerHomePageEvents,
+  'check/employee': bindOfficerVerdictPageEvents,
+  'check/locked': bindOfficerLockedPageEvents,
+};
+
+// Which chrome each officer screen gets.
+//   header — the navy bar (everything except the login/setup screen)
+//   strip  — the sync strip (home only; the verdict and lock screens are
+//            single-purpose and must not offer a competing action)
+//   padded — wrap the page in <div class="body">. The verdict hero and the lock
+//            screen are full-bleed and do their own spacing, so they opt out.
+const OFFICER_SHELL = {
+  check:            { header: false, strip: false, padded: false },
+  'check/home':     { header: true,  strip: true,  padded: true },
+  'check/employee': { header: true,  strip: false, padded: false },
+  'check/locked':   { header: true,  strip: false, padded: false },
+};
+
+// Screens that show verdict-bearing data and therefore must never render from a
+// stale cache (CLAUDE.md rule 8).
+const NEEDS_FRESH_CACHE = ['check/home', 'check/employee'];
 
 // route name -> optional bind<Name>Events function for the page body. Each stage
 // registers its page's binder here as it lands.
@@ -101,6 +130,58 @@ function adminTopbarMeta(route) {
   return { title: t(byKey[route] || 'app_name'), sub: '' };
 }
 
+// Draws an officer screen into `app`. Each early return here redirects instead
+// of drawing; the go() re-enters render() and this runs again against the new
+// route, so it always terminates on a screen the officer is allowed to see.
+//
+// The staleness lockout is enforced here rather than inside the page functions
+// so it cannot be bypassed by reaching a page another way — a typed URL, a back
+// button, or a bookmark all pass through this one gate.
+function renderOfficerShell(app) {
+  if (!OFFICER_STATE.user) {
+    // Signed out: login is the only officer screen. Drop any leftover search and
+    // recent-lookup state so the next officer starts clean.
+    clearOfficerHomeState();
+    if (ROUTE !== 'check') {
+      go('check');
+      return;
+    }
+  } else if (ROUTE === 'check') {
+    // Already signed in — skip the login screen.
+    go('check/home');
+    return;
+  } else if (NEEDS_FRESH_CACHE.includes(ROUTE) && isCacheStale()) {
+    go('check/locked');
+    return;
+  } else if (ROUTE === 'check/locked' && !isCacheStale()) {
+    // A sync landed; don't strand the officer on the lock screen.
+    go('check/home');
+    return;
+  }
+
+  const pageFn = OFFICER_PAGES[ROUTE];
+  if (!pageFn) {
+    go('check');
+    return;
+  }
+
+  const shell = OFFICER_SHELL[ROUTE];
+  const body = pageFn();
+
+  app.innerHTML = `
+    <div class="phone">
+      ${shell.header ? renderOfficerHeader() : ''}
+      ${shell.strip ? renderOfficerSyncStrip() : ''}
+      ${shell.padded ? `<div class="body">${body}</div>` : body}
+    </div>`;
+
+  if (shell.header) bindOfficerHeaderEvents();
+  if (shell.strip) bindOfficerSyncStripEvents();
+
+  const bind = OFFICER_BINDERS[ROUTE];
+  if (typeof bind === 'function') bind();
+}
+
 // ── render ──────────────────────────────────────────────────────────────────
 
 export function render() {
@@ -120,6 +201,16 @@ export function render() {
     return;
   }
 
+  // Leaving the employee form discards its draft, so re-entering it later
+  // starts blank instead of resuming a half-typed record.
+  if (!isEmployeeFormRoute(ROUTE)) clearEmployeeFormDraft();
+
+  // Officer mobile shell — its own session, chrome, and staleness guard.
+  if (String(ROUTE).startsWith('check')) {
+    renderOfficerShell(app);
+    return;
+  }
+
   // Unknown route — send somewhere safe.
   const pageFn = PAGES[ROUTE];
   if (!pageFn) {
@@ -127,20 +218,9 @@ export function render() {
     return;
   }
 
-  // Leaving the employee form discards its draft, so re-entering it later
-  // starts blank instead of resuming a half-typed record.
-  if (!isEmployeeFormRoute(ROUTE)) clearEmployeeFormDraft();
-
   const content = pageFn();
 
-  if (String(ROUTE).startsWith('check')) {
-    // Officer mobile shell (placeholder until Stage 9).
-    app.innerHTML = `
-      <div class="phone-shell">
-        <header class="officer-header">OHS Field Check</header>
-        ${content}
-      </div>`;
-  } else if (!CURRENT_USER) {
+  if (!CURRENT_USER) {
     // Login page — no shell.
     app.innerHTML = content;
   } else {

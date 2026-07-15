@@ -56,6 +56,20 @@
   --login-grad-end: #e8ecf5;              /* login background gradient end stop */
   --info-bg:     #e0f2fe;  --info-border: #7dd3fc;  --info-tx: #075985;  /* sky info banner */
 
+  --border-soft: #f0f2f7;                 /* hairline between rows inside a card */
+  --warn-border: #fde68a;                 /* stale banner edge */
+  --tag-neutral-bg: #eef2ff;  --tag-neutral-tx: #3730a3;  /* job-title tag */
+
+  /* Officer shell — surfaces that sit on navy. Expressed as translucent white so
+     they hold up over both the flat header and the login gradient. */
+  --navy-grad-end: #1a2555;               /* login gradient bottom stop */
+  --navy-btn-bg: rgba(255, 255, 255, .10);
+  --navy-input-bg: rgba(255, 255, 255, .06);
+  --navy-input-border: rgba(255, 255, 255, .15);
+  --navy-input-ph: rgba(255, 255, 255, .40);
+  --err-on-navy-bg: rgba(224, 82, 82, .15);
+  --err-on-navy-tx: #fecaca;
+
   --radius-card: 14px;
   --radius-control: 8px;
   --radius-mobile: 10px;

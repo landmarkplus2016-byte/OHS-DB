@@ -2,8 +2,9 @@
    layout.css — app shell structure.
    Admin desktop shell: .app, .sidebar (+ .side-logo, .nav, .side-bottom,
    lang-toggle, userchip, signout), .main, .topbar, .content.
-   Officer mobile shell (.phone-shell, .officer-header, ...) lands in Stage 9.
-   Values lifted from design/ohs_admin_prototype.html.
+   Officer mobile shell: .phone, .hbar, .sync-strip, .stale-banner, .body.
+   Values lifted from design/ohs_admin_prototype.html and
+   design/ohs_officer_prototype.html.
    ========================================================================== */
 
 /* ---------- Shell skeleton ---------- */
@@ -115,3 +116,88 @@
 .dirty-txt { color: var(--warning); font-size: 12px; }
 
 .content { padding: 26px; flex: 1; }
+
+/* ==========================================================================
+   Officer mobile shell
+   ========================================================================== */
+
+/* Mobile-first frame — a phone-width column centered on desktop, edge-to-edge
+   on an actual phone. */
+.phone {
+  max-width: 420px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+  border-inline: 1px solid var(--border);
+}
+@media (max-width: 440px) {
+  .phone { border: none; }
+}
+
+/* ---------- Navy header bar (every officer screen except login) ---------- */
+.hbar {
+  background: var(--navy);
+  color: var(--navy-text-strong);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.hbar .brand { display: flex; align-items: center; gap: 10px; }
+.hbar .mark { color: var(--primary); font-weight: 800; font-size: 16px; letter-spacing: .5px; }
+.hbar .name { font-weight: 700; font-size: 14px; }
+.hbar .sub { color: var(--navy-text); font-size: 11px; }
+.hbar-actions { display: flex; gap: 6px; }
+.hbar-btn {
+  color: var(--navy-text-strong);
+  font-size: 13px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--navy-btn-bg);
+  font-family: inherit;
+  cursor: pointer;
+}
+.hbar-btn.icon { padding: 8px; font-size: 16px; line-height: 1; }
+
+/* ---------- Sync status strip ---------- */
+.sync-strip {
+  background: var(--card);
+  padding: 10px 18px;
+  border-block-end: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+}
+.sync-strip .as-of { color: var(--text2); }
+.sync-strip .as-of b { color: var(--text); }
+.sync-strip .age-warn { color: var(--warn-dark); font-weight: 600; }
+.sync-strip button {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 13px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* Full-width amber strip shown as the cache approaches the lockout threshold. */
+.stale-banner {
+  background: var(--warn-bg);
+  color: var(--warn-dark);
+  padding: 10px 16px;
+  font-size: 12.5px;
+  text-align: center;
+  font-weight: 600;
+  border-block-end: 1px solid var(--warn-border);
+}
+
+/* ---------- Officer content padding ---------- */
+.phone .body { padding: 18px; }

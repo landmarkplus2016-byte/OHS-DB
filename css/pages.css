@@ -412,3 +412,271 @@
   .detail-grid { grid-template-columns: 1fr; }
   .kpi-row { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   Officer app (mobile shell pages)
+   Values lifted from design/ohs_officer_prototype.html.
+   ========================================================================== */
+
+/* ---------- Officer login / first-run setup ---------- */
+/* Its own navy gradient screen, distinct from the admin .login-card. */
+.officer-login {
+  padding: 32px 22px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--navy) 0%, var(--navy-grad-end) 100%);
+  color: var(--navy-text-strong);
+}
+.officer-login .mark { color: var(--primary); font-weight: 800; font-size: 36px; text-align: center; letter-spacing: 2px; }
+.officer-login h1 { font-size: 20px; text-align: center; margin: 6px 0 4px; }
+.officer-login .sub { color: var(--navy-text); font-size: 13px; text-align: center; margin-bottom: 36px; }
+
+/* Overrides the light-surface .field from components.css for the navy screen. */
+.officer-login .field { margin-bottom: 14px; gap: 6px; }
+.officer-login .field label { font-size: 12.5px; color: var(--navy-text); font-weight: 600; }
+.officer-login .field input {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-mobile);
+  border: 1px solid var(--navy-input-border);
+  background: var(--navy-input-bg);
+  color: var(--navy-text-strong);
+  font-size: 15px;
+}
+.officer-login .field input::placeholder { color: var(--navy-input-ph); }
+.officer-login .field input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.officer-login .btn-lg { margin-top: 16px; }
+.officer-login .lang { display: flex; gap: 8px; justify-content: center; margin-top: 20px; }
+.officer-login .lang button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--navy-btn-bg);
+  color: var(--navy-text);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.officer-login .lang button.active { background: var(--primary); color: var(--navy-text-strong); }
+.officer-login .err {
+  background: var(--err-on-navy-bg);
+  color: var(--err-on-navy-tx);
+  padding: 10px;
+  border-radius: var(--radius-control);
+  font-size: 13px;
+  margin-top: 12px;
+  text-align: center;
+}
+.officer-login .err:empty { display: none; }
+
+/* Foot note pointing at the Setup screen / back to sign-in. */
+.officer-login .note {
+  color: var(--navy-text);
+  font-size: 11.5px;
+  text-align: center;
+  margin-top: 26px;
+  line-height: 1.6;
+}
+.officer-login .note button {
+  color: var(--primary);
+  background: none;
+  border: none;
+  font-size: 11.5px;
+  font-family: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* ---------- Search box (officer home) ---------- */
+.search-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.search-box input { flex: 1; border: none; background: none; font-size: 15px; outline: none; min-width: 0; }
+.search-box .ic { color: var(--muted); font-size: 18px; }
+.search-box .clear {
+  color: var(--muted);
+  font-size: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+/* ---------- Result list (officer home) ---------- */
+.result-list { display: flex; flex-direction: column; gap: 8px; }
+.result-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  text-align: start;
+  width: 100%;
+  font-family: inherit;
+  color: inherit;
+}
+.result-item:active { background: var(--surface-alt); }
+/* Larger, softer avatar than the admin chip. */
+.result-item .avatar {
+  width: 42px;
+  height: 42px;
+  font-size: 14px;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.result-info { flex: 1; min-width: 0; }
+/* The row is a <button>, so its inner spans need blockifying to stack. */
+.result-name {
+  display: block;
+  font-weight: 700;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.result-meta {
+  display: block;
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Quick verdict colour — a dot, so the list scans without reading. */
+.v-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+.v-dot.v-cleared { background: var(--cleared); }
+.v-dot.v-warning { background: var(--warn); }
+.v-dot.v-blocked { background: var(--blocked); }
+
+/* ---------- Officer section heading / empty state ---------- */
+.section-h {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin: 6px 4px 8px;
+}
+.empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
+.empty .big { font-size: 48px; margin-bottom: 12px; opacity: .3; }
+
+/* ---------- Verdict hero ---------- */
+.verdict-hero { padding: 26px 22px 22px; color: var(--on-hero); position: relative; }
+.verdict-hero.cleared { background: linear-gradient(135deg, var(--cleared) 0%, var(--cleared-dark) 100%); }
+.verdict-hero.warning { background: linear-gradient(135deg, var(--warn) 0%, var(--warn-dark) 100%); }
+.verdict-hero.blocked { background: linear-gradient(135deg, var(--blocked) 0%, var(--blocked-dark) 100%); }
+.verdict-back {
+  position: absolute;
+  top: 16px;
+  inset-inline-start: 16px;
+  color: var(--on-hero);
+  font-size: 20px;
+  padding: 6px 10px;
+  background: var(--hero-btn-bg);
+  border: none;
+  border-radius: var(--radius-control);
+  font-family: inherit;
+  cursor: pointer;
+  line-height: 1;
+}
+.verdict-icon { font-size: 66px; text-align: center; margin: 8px 0 4px; line-height: 1; }
+.verdict-label { font-size: 26px; font-weight: 800; text-align: center; letter-spacing: .5px; }
+.verdict-sub { font-size: 14px; text-align: center; opacity: .9; margin-top: 4px; }
+
+/* ---------- Employee card (overlaps the hero) ---------- */
+.emp-card {
+  background: var(--card);
+  margin: -12px 14px 14px;
+  border-radius: var(--radius-card);
+  padding: 18px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  z-index: 1;
+}
+.emp-name { font-weight: 800; font-size: 20px; }
+.emp-natid { font-family: ui-monospace, monospace; font-size: 13px; color: var(--text2); margin-top: 4px; }
+.emp-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+/* Job title — neutral indigo, distinct from the badge states. */
+.badge.tag-title { background: var(--tag-neutral-bg); color: var(--tag-neutral-tx); }
+
+/* ---------- Reasons (blockers / warnings) ---------- */
+.reasons { padding: 0 14px; }
+.reasons h3 { margin: 6px 0 10px; font-size: 14px; font-weight: 700; }
+.reasons h3.blocked-h { color: var(--blocked-dark); }
+.reasons h3.warning-h { color: var(--warn-dark); }
+.reason-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-mobile);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+.reason-item.blocker { border-inline-start: 4px solid var(--blocked); }
+.reason-item.warning { border-inline-start: 4px solid var(--warn); }
+.reason-ic { font-size: 18px; flex-shrink: 0; }
+.reason-txt { flex: 1; }
+
+/* ---------- Certificate list (verdict page) ---------- */
+.cert-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin: 14px;
+}
+.cert-block h3 { margin: 0 0 12px; font-size: 14px; font-weight: 700; }
+.cert-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-block-end: 1px solid var(--border-soft);
+  font-size: 13.5px;
+}
+.cert-line:last-child { border-block-end: none; }
+.cert-line-name { color: var(--text); }
+.cert-line-date { color: var(--text2); font-size: 12.5px; margin-top: 2px; }
+
+/* Explanatory line at the top of the re-auth sync modal. */
+.sync-note { margin: 0 0 14px; color: var(--text2); font-size: 13px; line-height: 1.5; }
+
+/* ---------- Stale-sync lockout ---------- */
+.lock {
+  padding: 60px 24px;
+  text-align: center;
+  background: var(--card);
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.lock-icon { font-size: 64px; margin-bottom: 14px; }
+.lock h2 { font-size: 20px; margin: 0 0 8px; }
+.lock p { color: var(--text2); font-size: 14px; line-height: 1.5; max-width: 280px; margin-bottom: 24px; }
+.lock .lock-age { color: var(--warn-dark); font-weight: 600; font-size: 13px; margin-top: -14px; }
+.lock .btn { max-width: 280px; width: 100%; }

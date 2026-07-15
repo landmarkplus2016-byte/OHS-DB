@@ -23,6 +23,14 @@
 .btn-danger { background: var(--danger-soft); color: var(--danger); }
 .btn-danger:hover { background: var(--danger-soft-hover); }
 .btn-sm { padding: 6px 10px; font-size: 12px; }
+/* Touch-sized button for the officer mobile shell. */
+.btn-lg {
+  padding: 14px 18px;
+  font-size: 15px;
+  border-radius: var(--radius-mobile);
+  justify-content: center;
+}
+.btn-block { width: 100%; justify-content: center; }
 
 /* ---------- Theme swatches ---------- */
 .swatches { display: flex; gap: 8px; margin-bottom: 12px; }
