@@ -359,6 +359,46 @@
 .settings-inputs { margin-top: 20px; max-width: 640px; }
 .settings-inputs .field { margin-bottom: 14px; }
 
+/* ---------- Excel import preview ---------- */
+/* The review table needs far more width than a standard modal. */
+.modal-lg { max-width: 900px; }
+
+.import-summary { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.sum-chip {
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  background: var(--missing-bg);
+  color: var(--missing-tx);
+}
+.sum-chip b { font-size: 13px; }
+.sum-new     { background: var(--cleared-bg); color: var(--cleared-dark); }
+.sum-dup     { background: var(--urgent-bg);  color: var(--urgent-tx); }
+.sum-unknown { background: var(--warn-bg);    color: var(--warn-dark); }
+
+.import-warnings {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--text2);
+}
+.import-warnings summary { cursor: pointer; font-weight: 600; }
+.import-warnings ul { margin: 8px 0 0; padding-inline-start: 18px; }
+.import-warnings li { margin-bottom: 3px; }
+
+/* The row list can run to hundreds — scroll it inside the modal so the summary
+   and the footer buttons stay put. */
+.import-table-wrap { max-height: 50vh; overflow: auto; }
+/* .tbl clips itself with overflow:hidden, which would make it the sticky
+   header's scroll container instead of the wrap above — so the header would
+   never stick. The wrap does the clipping here instead. */
+.import-table-wrap .tbl { font-size: 12px; overflow: visible; border-radius: 0; }
+.import-table-wrap .tbl th { position: sticky; top: 0; z-index: 1; }
+.row-reasons { color: var(--text2); font-size: 11px; margin-top: 3px; }
+.row-action { border: 1px solid var(--border); border-radius: 6px; padding: 5px 7px; font-size: 12px; background: var(--card); }
+
 @media (max-width: 1100px) {
   .cert-list { grid-template-columns: 1fr; }
   .detail-grid { grid-template-columns: repeat(2, 1fr); }

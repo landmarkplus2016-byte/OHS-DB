@@ -16,6 +16,7 @@ import { LIST_FIELD_KEYS, getFieldOptions } from '../constants/fields.js';
 import { escapeHtml, todayISO } from '../utils/format.js';
 import { openModal } from '../components/modal.js';
 import { showToast } from '../components/toast.js';
+import { teamBadgeHtml } from '../components/badge.js';
 import {
   saveUsers,
   updateMeta,
@@ -23,6 +24,12 @@ import {
   loadJSON,
   publishFieldSnapshot,
 } from '../data/dataActions.js';
+import {
+  parseExcelWorkbook,
+  buildImportPreview,
+  commitImport,
+  summarizePreview,
+} from '../utils/excelImport.js';
 
 const TABS = ['users', 'lists', 'thresholds', 'data'];
 
@@ -367,11 +374,144 @@ function openUserModal(existing) {
   });
 }
 
-// Stage 8 seam: the parser (js/utils/excelImport.js) and this preview modal are
-// built in the Excel import stage. Until then the card is wired but reports that
-// the feature is not there rather than pretending to import.
-function openExcelImportPreview(_file) {
-  showToast(t('import_not_ready'), 'error');
+// ── excel import preview ────────────────────────────────────────────────────
+
+// The per-row Action select. The options offered depend on what is wrong with
+// the row, and the default (first option) is the safe choice in each case:
+// duplicates default to Skip, everything else to Import.
+function actionSelectHtml(row, index) {
+  const opt = (value, label) =>
+    `<option value="${value}"${row.action === value ? ' selected' : ''}>${label}</option>`;
+
+  let options;
+  if (row.status === 'duplicate') {
+    options = opt('skip', t('act_skip')) + opt('overwrite', t('act_overwrite')) + opt('import', t('act_add_new'));
+  } else if (row.status === 'unknown_sub') {
+    options = opt('import', t('act_add_sub_import', { value: escapeHtml(row.unknown_sub_value) })) + opt('skip', t('act_skip'));
+  } else if (row.status === 'unknown_title') {
+    options = opt('import', t('act_add_title_import', { value: escapeHtml(row.unknown_title_value) })) + opt('skip', t('act_skip'));
+  } else {
+    options = opt('import', t('act_import')) + opt('skip', t('act_skip'));
+  }
+
+  return `<select data-row="${index}" class="row-action">${options}</select>`;
+}
+
+function previewRowHtml(row, index) {
+  const reasons = row.reasons.length
+    ? `<div class="row-reasons">${row.reasons.map(escapeHtml).join(' · ')}</div>`
+    : '';
+  return `
+    <tr>
+      <td>${row.excel_row}</td>
+      <td>
+        ${escapeHtml(row.employee_partial.name)}
+        <div class="emp-id-sub">${escapeHtml(row.employee_partial.national_id)}</div>
+      </td>
+      <td>${teamBadgeHtml(row.team)}</td>
+      <td>
+        <span class="badge ${row.status === 'new' ? 'st-valid' : row.status === 'duplicate' ? 'st-urgent' : 'st-soon'}">${t('status_' + row.status)}</span>
+        ${reasons}
+      </td>
+      <td>${actionSelectHtml(row, index)}</td>
+    </tr>`;
+}
+
+function summaryHtml(summary) {
+  // "Will skip" keeps the neutral base chip — it is a count, not a problem.
+  const chip = (labelKey, n, cls = '') =>
+    `<span class="sum-chip ${cls}"><b>${n}</b> ${t(labelKey)}</span>`;
+  return `
+    <div class="import-summary">
+      ${chip('summary_new', summary.new, 'sum-new')}
+      ${chip('summary_duplicates', summary.duplicates, 'sum-dup')}
+      ${chip('summary_unknowns', summary.unknowns, 'sum-unknown')}
+      ${chip('summary_skipped', summary.skipped)}
+    </div>`;
+}
+
+function warningsHtml(warnings) {
+  if (!warnings.length) return '';
+  return `
+    <details class="import-warnings">
+      <summary>${t('import_warnings', { n: warnings.length })}</summary>
+      <ul>${warnings.map((w) => `<li>${escapeHtml(w)}</li>`).join('')}</ul>
+    </details>`;
+}
+
+// Opens the review table for a parsed workbook. `preview.rows` is the single
+// source of truth here: the selects write straight back into it, and Confirm
+// hands the same object to commitImport — so what the admin sees is exactly what
+// gets written. Cancel drops it and nothing was ever mutated.
+function openImportPreviewModal(preview, warnings) {
+  const body = `
+    <p class="panel-intro">${t('import_preview_intro')}</p>
+    ${summaryHtml(preview.summary)}
+    ${warningsHtml(warnings)}
+    <div class="import-table-wrap">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>${t('col_row')}</th>
+            <th>${t('col_name')}</th>
+            <th>${t('team_label')}</th>
+            <th>${t('col_status')}</th>
+            <th>${t('col_action')}</th>
+          </tr>
+        </thead>
+        <tbody>${preview.rows.map(previewRowHtml).join('')}</tbody>
+      </table>
+    </div>`;
+
+  const foot = `
+    <button class="btn btn-ghost btn-sm" data-modal-action="cancel">${t('cancel')}</button>
+    <button class="btn btn-primary btn-sm" data-modal-action="confirm">${t('confirm_import')}</button>`;
+
+  const close = openModal(t('import_preview_title'), body, foot);
+  document.querySelector('.modal').classList.add('modal-lg');
+
+  // Each select writes its row's action back into the preview, and the summary
+  // re-counts so "Will skip" always matches the table.
+  document.querySelectorAll('.row-action').forEach((sel) => {
+    sel.addEventListener('change', () => {
+      preview.rows[Number(sel.dataset.row)].action = sel.value;
+      preview.summary = summarizePreview(preview.rows);
+      const sums = document.querySelector('.import-summary');
+      if (sums) sums.outerHTML = summaryHtml(preview.summary);
+    });
+  });
+
+  document.querySelector('[data-modal-action="cancel"]').addEventListener('click', close);
+  document.querySelector('[data-modal-action="confirm"]').addEventListener('click', () => {
+    const res = commitImport(preview, CURRENT_USER);
+    close();
+    render();
+    if (!res.added && !res.updated) {
+      showToast(t('toast_import_none'), 'error');
+      return;
+    }
+    showToast(t('toast_import_done', { added: res.added, updated: res.updated }), 'success');
+  });
+}
+
+// Reads the picked workbook and opens the preview. Parsing happens off the
+// stored data entirely — DATA is untouched until Confirm.
+function openExcelImportPreview(file) {
+  const reader = new FileReader();
+  reader.onerror = () => showToast(t('import_parse_error'), 'error');
+  reader.onload = () => {
+    const parsed = parseExcelWorkbook(reader.result);
+    const preview = buildImportPreview(parsed, DATA.employees, DATA.meta.field_options);
+
+    if (!preview.rows.length) {
+      // No rows at all: the warnings are the whole story, so show the first one
+      // rather than an empty table.
+      showToast(parsed.warnings[0] || t('import_no_rows'), 'error');
+      return;
+    }
+    openImportPreviewModal(preview, parsed.warnings);
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 // ── events ──────────────────────────────────────────────────────────────────
