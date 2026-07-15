@@ -94,3 +94,71 @@
 }
 .list-pager .pages { display: flex; gap: 8px; align-items: center; }
 .empty-cell { text-align: center; padding: 40px; color: var(--muted); }
+
+/* ---------- Employee detail ---------- */
+/* Badge strip above the first section: team, compliance, status, legal. */
+.detail-badges { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+
+.detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.field-disp { display: flex; flex-direction: column; gap: 3px; }
+.field-disp .lab {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.field-disp .val { font-size: 13.5px; font-weight: 500; }
+.field-disp .val.muted { color: var(--muted); font-style: italic; }
+.field-disp .val.mono { font-family: ui-monospace, monospace; }
+
+/* Two cert rows per row on wide screens, one on narrow (see media query below). */
+.cert-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cert-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface-alt);
+}
+.cert-info .name { font-weight: 600; font-size: 13px; }
+.cert-info .date { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.cert-info .rel { color: var(--muted); }
+.cert-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+.not-found { text-align: center; padding: 40px; color: var(--muted); }
+.not-found .btn { margin-top: 14px; }
+
+/* ---------- Employee form ---------- */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* One certificate's expiry + link inputs. */
+.cert-edit {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 12px;
+  background: var(--surface-alt);
+}
+.cert-edit-name { font-weight: 600; font-size: 13px; margin-bottom: 8px; }
+.cert-edit .field.last { margin-bottom: 0; }
+
+.qual-checks { display: flex; gap: 20px; flex-wrap: wrap; }
+.qual-checks .check { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+
+/* Inputs that failed validation, paired with an .err message below. */
+.field input.input-invalid,
+.field select.input-invalid { border-color: var(--danger); }
+.field input.input-invalid:focus,
+.field select.input-invalid:focus { box-shadow: 0 0 0 3px var(--danger-soft); }
+
+@media (max-width: 1100px) {
+  .cert-list { grid-template-columns: 1fr; }
+  .detail-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .detail-grid { grid-template-columns: 1fr; }
+}

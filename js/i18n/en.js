@@ -107,6 +107,33 @@ export const en = {
   cert_link: 'Certificate link (optional)',
   open_cert: 'Open certificate',
   no_value: 'No value',
+  emp_not_found: 'That employee no longer exists.',
+  col_cert: 'Certificate',
+  col_old_expiry: 'Old expiry',
+  col_new_expiry: 'New expiry',
+  col_renewed_at: 'Renewed',
+  col_renewed_by: 'By',
+
+  // ---------- Detail actions / confirmations ----------
+  confirm_archive_title: 'Archive employee?',
+  confirm_archive_msg: '{name} will be hidden from the team list and left out of the field snapshot. You can unarchive them at any time.',
+  confirm_unarchive_title: 'Unarchive employee?',
+  confirm_unarchive_msg: '{name} will reappear in the team list and in the next field snapshot.',
+  confirm_delete_title: 'Delete employee permanently?',
+  confirm_delete_msg: '{name} ({id}) will be removed from the data file. This cannot be undone.',
+  confirm_delete_history_warn: 'Their renewal history ({n} entries) will be lost with them. Archive instead if you only want them off the list.',
+  toast_archived: '{name} archived',
+  toast_unarchived: '{name} unarchived',
+  toast_deleted: '{name} deleted',
+
+  // ---------- Employee form ----------
+  err_name_required: 'Full name is required.',
+  err_natid_required: 'National ID is required.',
+  err_natid_duplicate: 'National ID {natid} already belongs to {name}.',
+  err_fix_form: 'Check the highlighted fields.',
+  toast_employee_added: '{name} added',
+  toast_employee_saved: '{name} saved',
+  select_none: '—',
 
   // ---------- Compliance states ----------
   st_valid: 'Valid',

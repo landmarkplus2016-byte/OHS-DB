@@ -33,3 +33,22 @@ export function employmentStatusBadgeHtml(status) {
   const cls = status === 'Active' ? 'emp-active' : 'emp-inactive';
   return `<span class="badge ${cls}">${escapeHtml(status)}</span>`;
 }
+
+// Team tag: indigo for field, pink for safety. The label is translatable.
+export function teamBadgeHtml(team) {
+  const isField = team === 'field';
+  return `<span class="badge ${isField ? 'team-field' : 'team-safety'}">${t(isField ? 'nav_field' : 'nav_safety')}</span>`;
+}
+
+// Legal-permission pill: 'Approved' reads green, anything else red. Like
+// employment status, the text is data from field_options, so it is escaped.
+export function legalPermissionBadgeHtml(value) {
+  const cls = value === 'Approved' ? 'legal-ok' : 'legal-no';
+  return `<span class="badge ${cls}">${escapeHtml(value)}</span>`;
+}
+
+// Qualification pill (safety team): green with a tick when held, grey with a
+// dash when not. `labelKey` is an i18n key (qual_nebosh / qual_iso / qual_osha).
+export function qualificationBadgeHtml(labelKey, has) {
+  return `<span class="badge ${has ? 'qual-on' : 'qual-off'}">${t(labelKey)} ${has ? '✓' : '—'}</span>`;
+}

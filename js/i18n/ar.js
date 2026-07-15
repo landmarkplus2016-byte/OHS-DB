@@ -106,6 +106,33 @@ export const ar = {
   cert_link: 'رابط الشهادة (اختياري)',
   open_cert: 'فتح الشهادة',
   no_value: 'غير مدخل',
+  emp_not_found: 'هذا الموظف لم يعد موجوداً.',
+  col_cert: 'الشهادة',
+  col_old_expiry: 'الانتهاء السابق',
+  col_new_expiry: 'الانتهاء الجديد',
+  col_renewed_at: 'تاريخ التجديد',
+  col_renewed_by: 'بواسطة',
+
+  // ---------- Detail actions / confirmations ----------
+  confirm_archive_title: 'أرشفة الموظف؟',
+  confirm_archive_msg: 'سيتم إخفاء {name} من قائمة الفريق واستبعاده من نسخة الميدان. يمكنك إلغاء الأرشفة في أي وقت.',
+  confirm_unarchive_title: 'إلغاء أرشفة الموظف؟',
+  confirm_unarchive_msg: 'سيظهر {name} مرة أخرى في قائمة الفريق وفي نسخة الميدان التالية.',
+  confirm_delete_title: 'حذف الموظف نهائياً؟',
+  confirm_delete_msg: 'سيتم حذف {name} ({id}) من ملف البيانات. لا يمكن التراجع عن هذا.',
+  confirm_delete_history_warn: 'سيُفقد سجل التجديدات الخاص به ({n} سجل) معه. استخدم الأرشفة بدلاً من ذلك إذا كنت تريد إخفاءه من القائمة فقط.',
+  toast_archived: 'تمت أرشفة {name}',
+  toast_unarchived: 'تم إلغاء أرشفة {name}',
+  toast_deleted: 'تم حذف {name}',
+
+  // ---------- Employee form ----------
+  err_name_required: 'الاسم بالكامل مطلوب.',
+  err_natid_required: 'الرقم القومي مطلوب.',
+  err_natid_duplicate: 'الرقم القومي {natid} مسجل بالفعل لـ {name}.',
+  err_fix_form: 'راجع الحقول المميزة.',
+  toast_employee_added: 'تمت إضافة {name}',
+  toast_employee_saved: 'تم حفظ {name}',
+  select_none: '—',
 
   // ---------- Compliance states ----------
   st_valid: 'ساري',

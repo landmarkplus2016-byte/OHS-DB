@@ -109,6 +109,15 @@
 /* Employment status. */
 .badge.emp-active   { background: var(--cleared-bg); color: var(--cleared-dark); }
 .badge.emp-inactive { background: var(--missing-bg); color: var(--missing-tx); }
+/* Team tag. */
+.badge.team-field  { background: var(--team-field-bg);  color: var(--team-field-tx); }
+.badge.team-safety { background: var(--team-safety-bg); color: var(--team-safety-tx); }
+/* Legal permission. */
+.badge.legal-ok { background: var(--cleared-bg); color: var(--cleared-dark); }
+.badge.legal-no { background: var(--blocked-bg); color: var(--blocked-dark); }
+/* Qualification held / not held (safety team). */
+.badge.qual-on  { background: var(--cleared-bg); color: var(--cleared-dark); }
+.badge.qual-off { background: var(--missing-bg); color: var(--missing-tx); }
 
 /* Small per-certificate state pill (cert rows, verdict cert list). */
 .cert-state {
@@ -124,6 +133,25 @@
 .cert-state.cs-urgent  { background: var(--urgent-bg);  color: var(--urgent-tx); }
 .cert-state.cs-expired { background: var(--blocked-bg); color: var(--blocked-dark); }
 .cert-state.cs-missing { background: var(--missing-bg); color: var(--missing-tx); }
+
+/* ---------- Section heading ---------- */
+/* Used to title the panels on detail/form/settings pages. */
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  margin: 18px 0 10px;
+  color: var(--text);
+}
+.section-head::before {
+  content: "";
+  width: 3px;
+  height: 16px;
+  background: var(--primary);
+  border-radius: 2px;
+}
 
 /* ---------- Tables ---------- */
 .tbl {

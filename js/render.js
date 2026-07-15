@@ -6,7 +6,7 @@
 // Stage-3 placeholders; each later stage replaces them with the real page
 // modules from the File Map and registers their bind*Events in BINDERS.
 
-import { ROUTE, ROUTE_PARAM, CURRENT_USER } from './state.js';
+import { ROUTE, CURRENT_USER } from './state.js';
 import { canAccessRoute } from './utils/permissions.js';
 import { go } from './router.js';
 import { t } from './i18n/i18n.js';
@@ -14,16 +14,20 @@ import { renderSidebar, bindSidebarEvents } from './components/sidebar.js';
 import { renderTopbar, bindTopbarEvents } from './components/topbar.js';
 import { renderLoginPage, bindLoginPageEvents } from './pages/loginPage.js';
 import { renderEmployeeListPage, employeeListTopbar, bindEmployeeListPageEvents } from './pages/employeeListPage.js';
+import { renderEmployeeDetailPage, employeeDetailTopbar, bindEmployeeDetailPageEvents } from './pages/employeeDetailPage.js';
+import {
+  renderEmployeeFormPage,
+  employeeFormTopbar,
+  bindEmployeeFormPageEvents,
+  isEmployeeFormRoute,
+  clearEmployeeFormDraft,
+} from './pages/employeeFormPage.js';
 
 // ── placeholder pages (one per route) ───────────────────────────────────────
 // Admin pages return inner content only; render() wraps them in <div class="content">.
 // Real implementations arrive in later stages under js/pages/*.
 
 function pageDashboard() { return 'Dashboard placeholder'; }
-function pageFieldNew() { return 'New field employee form placeholder'; }
-function pageSafetyNew() { return 'New safety employee form placeholder'; }
-function pageEmployeeDetail() { return 'Employee detail placeholder'; }
-function pageEmployeeForm() { return 'Employee edit form placeholder'; }
 function pageRenewals() { return 'Renewals placeholder'; }
 function pageExport() { return 'Export placeholder'; }
 function pageSettings() { return 'Settings placeholder'; }
@@ -38,11 +42,11 @@ const PAGES = {
   login: renderLoginPage,
   dashboard: pageDashboard,
   field: () => renderEmployeeListPage('field'),
-  'field/new': pageFieldNew,
+  'field/new': renderEmployeeFormPage,
   safety: () => renderEmployeeListPage('safety'),
-  'safety/new': pageSafetyNew,
-  employee: pageEmployeeDetail,
-  'employee/edit': pageEmployeeForm,
+  'safety/new': renderEmployeeFormPage,
+  employee: renderEmployeeDetailPage,
+  'employee/edit': renderEmployeeFormPage,
   renewals: pageRenewals,
   export: pageExport,
   settings: pageSettings,
@@ -59,6 +63,10 @@ const BINDERS = {
   login: bindLoginPageEvents,
   field: bindEmployeeListPageEvents,
   safety: bindEmployeeListPageEvents,
+  employee: bindEmployeeDetailPageEvents,
+  'field/new': bindEmployeeFormPageEvents,
+  'safety/new': bindEmployeeFormPageEvents,
+  'employee/edit': bindEmployeeFormPageEvents,
 };
 
 // route name -> function returning { title, sub, actions } for the topbar, when
@@ -67,6 +75,10 @@ const BINDERS = {
 const TOPBARS = {
   field: () => employeeListTopbar('field'),
   safety: () => employeeListTopbar('safety'),
+  employee: employeeDetailTopbar,
+  'field/new': employeeFormTopbar,
+  'safety/new': employeeFormTopbar,
+  'employee/edit': employeeFormTopbar,
 };
 
 // Topbar title/subtitle for an admin route. Employee routes use the id param as
@@ -75,15 +87,11 @@ function adminTopbarMeta(route) {
   const byKey = {
     dashboard: 'nav_dashboard',
     field: 'nav_field',
-    'field/new': 'add_employee',
     safety: 'nav_safety',
-    'safety/new': 'add_employee',
     renewals: 'nav_renewals',
     export: 'nav_export',
     settings: 'nav_settings',
   };
-  if (route === 'employee') return { title: ROUTE_PARAM || '', sub: '' };
-  if (route === 'employee/edit') return { title: ROUTE_PARAM || '', sub: t('edit') };
   return { title: t(byKey[route] || 'app_name'), sub: '' };
 }
 
@@ -112,6 +120,10 @@ export function render() {
     go(CURRENT_USER ? 'dashboard' : 'login');
     return;
   }
+
+  // Leaving the employee form discards its draft, so re-entering it later
+  // starts blank instead of resuming a half-typed record.
+  if (!isEmployeeFormRoute(ROUTE)) clearEmployeeFormDraft();
 
   const content = pageFn();
 

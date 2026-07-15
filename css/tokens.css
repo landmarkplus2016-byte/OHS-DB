@@ -29,6 +29,9 @@
   --urgent-bg:  #ffe4e6;  --urgent-tx:   #9f1239;
   --missing-bg: #f3f4f6;  --missing-tx:  #6b7280;
 
+  --team-field-bg: #e0e7ff;  --team-field-tx: #3730a3;  /* team tag — field */
+  --team-safety-bg: #fce7f3; --team-safety-tx: #9d174d;  /* team tag — safety */
+
   --surface-alt: #fafbfd;                 /* subtle zebra/header/hover surface */
   --overlay:     rgba(20, 22, 40, 0.45);  /* modal backdrop */
   --login-grad-end: #e8ecf5;              /* login background gradient end stop */

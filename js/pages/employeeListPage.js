@@ -233,10 +233,12 @@ export function bindEmployeeListPageEvents() {
     });
   });
 
-  // Add employee (button lives in the topbar).
+  // Add employee (button lives in the topbar). The '/new' sub-route is part of
+  // the route name, not a param — go('field', 'new') would render the list first
+  // and only reach the form once the hashchange landed.
   const addBtn = app.querySelector('[data-action="add-employee"]');
   if (addBtn) {
-    addBtn.addEventListener('click', () => go(addBtn.dataset.team, 'new'));
+    addBtn.addEventListener('click', () => go(addBtn.dataset.team + '/new'));
   }
 
   // Pagination.
