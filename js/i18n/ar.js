@@ -197,6 +197,56 @@ export const ar = {
   server_base_path: 'مسار السيرفر (لروابط الشهادات)',
   emp_id_prefix: 'بادئة رقم الموظف',
 
+  // ---------- Settings → Users ----------
+  add_user: 'إضافة مستخدم',
+  edit_user: 'تعديل المستخدم',
+  new_user: 'مستخدم جديد',
+  col_display_name: 'الاسم الظاهر',
+  col_role: 'الدور',
+  col_site_check: 'فحص الموقع',
+  col_active: 'نشط',
+  field_display_name: 'الاسم الظاهر',
+  field_role: 'الدور',
+  field_active: 'الحساب نشط',
+  field_site_check: 'يمكنه فحص الموقع',
+  role_admin: 'مسؤول',
+  role_officer: 'مسؤول سلامة',
+  password_blank_hint: 'اتركه فارغًا للإبقاء على كلمة المرور الحالية',
+  err_username_required: 'اسم المستخدم مطلوب.',
+  err_username_duplicate: 'اسم المستخدم "{username}" مستخدم بالفعل.',
+  err_password_required: 'كلمة المرور مطلوبة للمستخدم الجديد.',
+  err_last_admin: 'هذا آخر حساب مسؤول — لن يبقى أي وسيلة لدخول التطبيق.',
+  confirm_delete_user_title: 'حذف المستخدم؟',
+  confirm_delete_user_msg: '{name} ({username}) سيفقد الصلاحية عند المزامنة التالية. لا يمكن التراجع.',
+  toast_user_added: 'تمت إضافة {name}',
+  toast_user_saved: 'تم حفظ {name}',
+  toast_user_deleted: 'تم حذف {name}',
+
+  // ---------- Settings → Lists ----------
+  lists_intro: 'خيار واحد في كل سطر. حذف قيمة يزيلها من القوائم فقط — الموظفون الذين يستخدمونها يحتفظون بها.',
+  toast_lists_updated: 'تم تحديث القوائم',
+
+  // ---------- Settings → Thresholds ----------
+  thresholds_intro: 'تُحتسب حالات الشهادات من هذه القيم فور الحفظ.',
+  toast_thresholds_updated: 'تم تحديث التحذيرات',
+
+  // ---------- Settings → Data file ----------
+  data_ops: 'عمليات البيانات',
+  import_excel_desc: 'إضافة موظفين بالجملة من ملف ‎.xlsx‎ مع معاينة قبل التنفيذ.',
+  download_backup_desc: 'نسخة JSON كاملة من كل شيء. احفظها في Drive — فهي النسخة الوحيدة.',
+  restore_backup_desc: 'استبدال كل ما في الذاكرة بملف نسخة احتياطية.',
+  publish_snapshot_desc: 'تُزال المستخدمون وكلمات المرور والروابط والسجل. اسحب الملف إلى مجلد Drive للمسؤولين الميدانيين.',
+  drive_file_id: 'معرّف ملف Drive',
+  apps_script_hint: 'يرسل تطبيق الميدان بيانات الدخول إلى هذا الرابط. راجع BUILD.md لكود ‎.gs‎.',
+  drive_file_id_hint: 'ملف اللقطة الذي يقرأه Apps Script. محفوظ هنا لرجوعك إليه.',
+  server_base_path_hint: 'بادئة اختيارية لمسارات الشهادات التي تلصقها في نموذج الموظف.',
+  next_number_preview: 'الموظف التالي سيكون {id}',
+  confirm_restore_title: 'استعادة من هذه النسخة؟',
+  confirm_restore_msg: 'سيستبدل هذا كل ما في الذاكرة بمحتويات الملف: {employees} موظف، {users} مستخدم. سيُفقد كل ما لم تصدّره.',
+  toast_restored: 'تمت الاستعادة — {employees} موظف',
+  toast_snapshot_published: 'تم تصدير اللقطة — اسحبها إلى Drive',
+  import_not_ready: 'استيراد Excel غير مبني بعد.',
+
   // ---------- Export ----------
   export_page_intro: 'صفِّ ثم حمّل بالصيغة التي تريدها.',
   ex_excel: 'Excel (.xlsx)',

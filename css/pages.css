@@ -305,10 +305,65 @@
 .field input.input-invalid:focus,
 .field select.input-invalid:focus { box-shadow: 0 0 0 3px var(--danger-soft); }
 
+/* ---------- Settings ---------- */
+.settings-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 20px;
+}
+.settings-panel h3 { margin: 0 0 6px; font-size: 14px; }
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.panel-head h3 { margin: 0; }
+.panel-intro { color: var(--text2); font-size: 12.5px; margin: 0 0 14px; }
+.settings-actions { display: flex; justify-content: flex-end; margin-top: 14px; }
+
+/* Explanatory line under a setting input. */
+.hint { color: var(--text2); font-size: 11.5px; }
+.mono-input { font-family: ui-monospace, monospace; font-size: 11.5px; }
+
+/* Lists tab — one textarea per admin-managed dropdown. */
+.list-editor .field { margin-bottom: 0; }
+.list-editor textarea {
+  width: 100%;
+  min-height: 120px;
+  font-family: ui-monospace, monospace;
+  font-size: 12.5px;
+  resize: vertical;
+}
+
+/* Thresholds tab. */
+.thresh-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+/* Data file tab — the 2x2 action cards, then the text settings below them. */
+.data-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-mobile);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.data-card-title { font-weight: 700; margin-bottom: 4px; }
+.data-card-desc { color: var(--text2); font-size: 12.5px; margin-bottom: 10px; }
+.data-card-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+.settings-inputs { margin-top: 20px; max-width: 640px; }
+.settings-inputs .field { margin-bottom: 14px; }
+
 @media (max-width: 1100px) {
   .cert-list { grid-template-columns: 1fr; }
   .detail-grid { grid-template-columns: repeat(2, 1fr); }
   .two-col { grid-template-columns: 1fr; }
+  .thresh-grid { grid-template-columns: 1fr; }
   .kpi-row { grid-template-columns: repeat(2, 1fr); }
   .chart-row { grid-template-columns: 1fr; }
   .export-cards { grid-template-columns: 1fr; }

@@ -134,6 +134,31 @@
 /* Qualification held / not held (safety team). */
 .badge.qual-on  { background: var(--cleared-bg); color: var(--cleared-dark); }
 .badge.qual-off { background: var(--missing-bg); color: var(--missing-tx); }
+/* User role (settings → users). */
+.badge.role-admin   { background: var(--cleared-bg);     color: var(--cleared-dark); }
+.badge.role-officer { background: var(--team-safety-bg); color: var(--team-safety-tx); }
+
+/* ---------- Tabs ---------- */
+.tabs {
+  display: flex;
+  gap: 2px;
+  border-block-end: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+.tab {
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  color: var(--text2);
+  font-weight: 600;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  border-block-end: 2px solid transparent;
+  margin-block-end: -1px;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--primary); border-block-end-color: var(--primary); }
 
 /* Small per-certificate state pill (cert rows, verdict cert list). */
 .cert-state {

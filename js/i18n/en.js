@@ -198,6 +198,56 @@ export const en = {
   server_base_path: 'Server base path (for cert links)',
   emp_id_prefix: 'Employee ID prefix',
 
+  // ---------- Settings → Users ----------
+  add_user: 'Add user',
+  edit_user: 'Edit user',
+  new_user: 'New user',
+  col_display_name: 'Display name',
+  col_role: 'Role',
+  col_site_check: 'Site check',
+  col_active: 'Active',
+  field_display_name: 'Display name',
+  field_role: 'Role',
+  field_active: 'Account is active',
+  field_site_check: 'Can do site check',
+  role_admin: 'Admin',
+  role_officer: 'Officer',
+  password_blank_hint: 'Leave blank to keep the current password',
+  err_username_required: 'Username is required.',
+  err_username_duplicate: 'The username "{username}" is already taken.',
+  err_password_required: 'Password is required for a new user.',
+  err_last_admin: 'This is the last admin account — the app would be left with no way in.',
+  confirm_delete_user_title: 'Delete user?',
+  confirm_delete_user_msg: '{name} ({username}) will lose access at the next sync. This cannot be undone.',
+  toast_user_added: '{name} added',
+  toast_user_saved: '{name} saved',
+  toast_user_deleted: '{name} deleted',
+
+  // ---------- Settings → Lists ----------
+  lists_intro: 'One option per line. Removing a value only takes it out of the dropdowns — employees already using it keep it.',
+  toast_lists_updated: 'Lists updated',
+
+  // ---------- Settings → Thresholds ----------
+  thresholds_intro: 'Certificate states are recalculated from these the moment you save.',
+  toast_thresholds_updated: 'Thresholds updated',
+
+  // ---------- Settings → Data file ----------
+  data_ops: 'Data operations',
+  import_excel_desc: 'Bulk-add employees from an .xlsx file. Preview before commit.',
+  download_backup_desc: 'Full JSON snapshot of everything. Save it to Drive — it is the only copy.',
+  restore_backup_desc: 'Replace everything in memory with a backup file.',
+  publish_snapshot_desc: 'Strips users, passwords, links, and history. Drag the file into your Drive folder for officers.',
+  drive_file_id: 'Drive file ID',
+  apps_script_hint: 'The officer app POSTs credentials here. See BUILD.md for the .gs script.',
+  drive_file_id_hint: 'The snapshot file the Apps Script reads. Kept here for your own reference.',
+  server_base_path_hint: 'Optional prefix for certificate paths you paste on the employee form.',
+  next_number_preview: 'Next employee will be {id}',
+  confirm_restore_title: 'Restore from this backup?',
+  confirm_restore_msg: 'This replaces everything currently in memory with the file contents: {employees} employees, {users} users. Anything you have not exported will be lost.',
+  toast_restored: 'Backup restored — {employees} employees',
+  toast_snapshot_published: 'Snapshot exported — drag to Drive',
+  import_not_ready: 'Excel import is not built yet.',
+
   // ---------- Export ----------
   export_page_intro: 'Filter, then download in the format you need.',
   ex_excel: 'Excel (.xlsx)',

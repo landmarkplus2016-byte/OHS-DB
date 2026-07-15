@@ -25,12 +25,11 @@ import {
 import { renderDashboardPage, dashboardTopbar, bindDashboardPageEvents } from './pages/dashboardPage.js';
 import { renderRenewalsPage, renewalsTopbar, bindRenewalsPageEvents } from './pages/renewalsPage.js';
 import { renderExportPage, exportTopbar, bindExportPageEvents } from './pages/exportPage.js';
+import { renderSettingsPage, bindSettingsPageEvents } from './pages/settingsPage.js';
 
 // ── placeholder pages (one per route) ───────────────────────────────────────
 // Admin pages return inner content only; render() wraps them in <div class="content">.
 // Real implementations arrive in later stages under js/pages/*.
-
-function pageSettings() { return 'Settings placeholder'; }
 
 function pageOfficerLogin() { return '<div class="content">Officer login placeholder</div>'; }
 function pageOfficerHome() { return '<div class="content">Officer home placeholder</div>'; }
@@ -49,7 +48,7 @@ const PAGES = {
   'employee/edit': renderEmployeeFormPage,
   renewals: renderRenewalsPage,
   export: renderExportPage,
-  settings: pageSettings,
+  settings: renderSettingsPage,
 
   check: pageOfficerLogin,
   'check/home': pageOfficerHome,
@@ -64,6 +63,7 @@ const BINDERS = {
   dashboard: bindDashboardPageEvents,
   renewals: bindRenewalsPageEvents,
   export: bindExportPageEvents,
+  settings: bindSettingsPageEvents,
   field: bindEmployeeListPageEvents,
   safety: bindEmployeeListPageEvents,
   employee: bindEmployeeDetailPageEvents,
