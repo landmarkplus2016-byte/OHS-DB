@@ -128,22 +128,45 @@ function usersPanelHtml() {
 
 // ── tab: lists ──────────────────────────────────────────────────────────────
 
-function listsPanelHtml() {
-  const editors = LIST_FIELD_KEYS.map((key) => `
-    <div class="list-editor">
-      <div class="field">
-        <label for="list-${key}">${t(LIST_LABEL_KEYS[key] || key)}</label>
-        <textarea id="list-${key}" data-list="${key}" spellcheck="false">${escapeHtml(getFieldOptions(key).join('\n'))}</textarea>
-      </div>
-    </div>`).join('');
+// One editable option: the value plus its rename/remove controls. `index` keys
+// the row back to its position in getFieldOptions(key), which is the source of
+// truth — the DOM order always matches, so a stale index can never mutate the
+// wrong entry between renders.
+function listItemHtml(key, value, index) {
+  return `
+    <li class="list-item">
+      <span class="list-item-value">${escapeHtml(value)}</span>
+      <span class="list-item-actions">
+        <button class="btn btn-ghost btn-sm" data-list-edit="${key}" data-index="${index}">${t('edit')}</button>
+        <button class="btn btn-danger btn-sm" data-list-del="${key}" data-index="${index}">${t('delete')}</button>
+      </span>
+    </li>`;
+}
 
+function listCardHtml(key) {
+  const items = getFieldOptions(key);
+  const rows = items.length
+    ? items.map((v, i) => listItemHtml(key, v, i)).join('')
+    : `<li class="list-empty">${t('list_empty')}</li>`;
+
+  return `
+    <div class="list-card">
+      <div class="list-card-head">${t(LIST_LABEL_KEYS[key] || key)}</div>
+      <ul class="list-items">${rows}</ul>
+      <div class="list-add">
+        <input type="text" data-list-input="${key}" placeholder="${t('list_add_placeholder')}"
+               autocomplete="off" spellcheck="false">
+        <button class="btn btn-primary btn-sm" data-list-add="${key}">+ ${t('list_add')}</button>
+      </div>
+    </div>`;
+}
+
+function listsPanelHtml() {
+  const cards = LIST_FIELD_KEYS.map(listCardHtml).join('');
   return `
     <div class="settings-panel">
       <p class="panel-intro">${t('lists_intro')}</p>
-      <div class="two-col">${editors}</div>
-      <div class="settings-actions">
-        <button class="btn btn-primary" data-action="save-lists">✓ ${t('save')}</button>
-      </div>
+      <div class="two-col">${cards}</div>
     </div>`;
 }
 
@@ -575,19 +598,110 @@ function bindUsersTabEvents(app) {
   });
 }
 
-function bindListsTabEvents(app) {
-  const save = app.querySelector('[data-action="save-lists"]');
-  if (!save) return;
-  save.addEventListener('click', () => {
-    const next = { ...(DATA.meta.field_options || {}) };
-    LIST_FIELD_KEYS.forEach((key) => {
-      const ta = app.querySelector(`[data-list="${key}"]`);
-      if (!ta) return;
-      next[key] = ta.value.split('\n').map((s) => s.trim()).filter(Boolean);
-    });
-    updateMeta({ field_options: next });
+// Commits a new set of values for one list. Every list mutation funnels through
+// here so field_options is rebuilt whole (updateMeta merges shallowly, so a
+// partial object would drop the other lists) and IS_DIRTY is marked once.
+function setListOptions(key, values) {
+  const next = { ...(DATA.meta.field_options || {}) };
+  next[key] = values;
+  updateMeta({ field_options: next });
+}
+
+// Case-insensitive duplicate check against the list, optionally ignoring the
+// entry at `skipIndex` (so renaming a value to a different case is allowed).
+function listHasValue(key, value, skipIndex) {
+  const lower = value.toLowerCase();
+  return getFieldOptions(key).some((v, i) => i !== skipIndex && v.toLowerCase() === lower);
+}
+
+// Rename modal — the confirmation step for a change. The admin edits the value
+// in place; Save applies it, Cancel leaves the list untouched.
+function openListItemEditModal(key, index) {
+  const current = getFieldOptions(key)[index];
+  if (current == null) return;
+
+  const body = `
+    <div class="field">
+      <label for="li-edit">${t(LIST_LABEL_KEYS[key] || key)}</label>
+      <input type="text" id="li-edit" value="${escapeHtml(current)}" autocomplete="off" spellcheck="false">
+    </div>
+    <div id="li-err"></div>`;
+
+  const foot = `
+    <button class="btn btn-ghost btn-sm" data-modal-action="cancel">${t('cancel')}</button>
+    <button class="btn btn-primary btn-sm" data-modal-action="save">${t('save')}</button>`;
+
+  const close = openModal(t('edit_list_item_title'), body, foot);
+  const input = document.getElementById('li-edit');
+  const showError = (msg) => { document.getElementById('li-err').innerHTML = `<div class="err">${msg}</div>`; };
+
+  input.focus();
+  input.select();
+  document.querySelector('[data-modal-action="cancel"]').addEventListener('click', close);
+  document.querySelector('[data-modal-action="save"]').addEventListener('click', () => {
+    const value = input.value.trim();
+    if (!value) return showError(t('err_list_item_empty'));
+    if (value === current) return close(); // no change
+    if (listHasValue(key, value, index)) return showError(t('err_list_item_duplicate', { value: escapeHtml(value) }));
+
+    const values = getFieldOptions(key).slice();
+    values[index] = value;
+    setListOptions(key, values);
+    close();
     render();
-    showToast(t('toast_lists_updated'), 'success');
+    showToast(t('toast_list_item_renamed', { value }), 'success');
+  });
+}
+
+function bindListsTabEvents(app) {
+  // Add: reads the card's input, guards empty/duplicate, appends, commits.
+  const addFromInput = (key) => {
+    const input = app.querySelector(`[data-list-input="${key}"]`);
+    if (!input) return;
+    const value = input.value.trim();
+    if (!value) { showToast(t('err_list_item_empty'), 'error'); input.focus(); return; }
+    if (listHasValue(key, value)) { showToast(t('err_list_item_duplicate', { value }), 'error'); return; }
+
+    setListOptions(key, [...getFieldOptions(key), value]);
+    render();
+    showToast(t('toast_list_item_added', { value }), 'success');
+  };
+
+  app.querySelectorAll('[data-list-add]').forEach((btn) => {
+    btn.addEventListener('click', () => addFromInput(btn.dataset.listAdd));
+  });
+
+  // Enter in the add box is the same as clicking Add.
+  app.querySelectorAll('[data-list-input]').forEach((input) => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); addFromInput(input.dataset.listInput); }
+    });
+  });
+
+  app.querySelectorAll('[data-list-edit]').forEach((btn) => {
+    btn.addEventListener('click', () => openListItemEditModal(btn.dataset.listEdit, Number(btn.dataset.index)));
+  });
+
+  // Delete: always behind a confirmation so a stray click can't drop a value.
+  app.querySelectorAll('[data-list-del]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.listDel;
+      const index = Number(btn.dataset.index);
+      const value = getFieldOptions(key)[index];
+      if (value == null) return;
+
+      confirmModal(
+        t('confirm_delete_list_item_title'),
+        `<p>${t('confirm_delete_list_item_msg', { value: escapeHtml(value), list: t(LIST_LABEL_KEYS[key] || key) })}</p>`,
+        t('delete'),
+        'btn-danger',
+        () => {
+          setListOptions(key, getFieldOptions(key).filter((_, i) => i !== index));
+          render();
+          showToast(t('toast_list_item_removed', { value }), 'success');
+        }
+      );
+    });
   });
 }
 
