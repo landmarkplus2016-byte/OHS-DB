@@ -44,7 +44,7 @@ export function renderSidebar() {
   return `
     <aside class="sidebar">
       <div class="side-logo">
-        <div class="mark">OHS</div>
+        <img class="logo-img" src="LMP Logo White.png" alt="Landmark Plus">
         <div class="name">${t('app_name')}</div>
         <div class="sub">${t('app_sub')}</div>
       </div>

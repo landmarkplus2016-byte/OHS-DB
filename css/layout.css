@@ -23,8 +23,8 @@
 }
 
 .side-logo { padding: 20px 22px; border-block-end: 1px solid var(--navy-border); }
-.side-logo .mark { color: var(--primary); font-weight: 800; font-size: 20px; letter-spacing: .5px; }
-.side-logo .name { color: var(--navy-text-strong); font-weight: 700; font-size: 15px; margin-top: 2px; }
+.side-logo .logo-img { display: block; width: 100%; max-width: 160px; height: auto; margin-block-end: 10px; }
+.side-logo .name { color: var(--primary); font-weight: 700; font-size: 15px; margin-top: 2px; }
 .side-logo .sub { color: var(--navy-muted); font-size: 11px; margin-top: 2px; }
 
 .nav { padding: 12px 0; flex: 1; overflow-y: auto; }
