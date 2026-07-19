@@ -24,6 +24,7 @@ export const ar = {
   inactive_acct: 'هذا الحساب غير مُفعّل',
   admin_only: 'تطبيق سطح المكتب للمدير فقط. يستخدم الضباط رابط تطبيق الهاتف.',
   reupload: 'إعادة الرفع',
+  restored_note: 'تمت الاستعادة من هذا الجهاز · حُفظت في {date}. صدّر إلى Drive للاحتفاظ بنسخة احتياطية.',
   officer_hint: 'ضباط السلامة: اذهبوا إلى',
   load_err_json: 'تعذّر قراءة الملف — ليس JSON صالحاً.',
   load_err_shape: 'هذا الملف تنقصه بيانات مطلوبة (meta، users، employees).',

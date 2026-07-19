@@ -55,6 +55,14 @@
   color: var(--info-tx);
 }
 
+.restore-note {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: -8px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
 .officer-hint { text-align: center; font-size: 11.5px; color: var(--muted); margin-top: 18px; }
 .officer-hint a { color: var(--primary); text-decoration: none; }
 

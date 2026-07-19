@@ -12,7 +12,8 @@ import { loadJSON } from '../data/dataActions.js';
 import { login } from '../data/auth.js';
 import { go } from '../router.js';
 import { render } from '../render.js';
-import { escapeHtml } from '../utils/format.js';
+import { escapeHtml, fmtDate } from '../utils/format.js';
+import { clearAdminData, ADMIN_CACHE } from '../data/adminCache.js';
 
 // True when only the in-memory bootstrap state is present (no real data yet).
 function isBootstrapOnly() {
@@ -45,7 +46,8 @@ export function renderLoginPage() {
       <div class="upload-inline">
         <span>✓ ${t('file_loaded', { employees: DATA.employees.length, users: DATA.users.length })}</span>
         <button class="btn btn-ghost btn-sm" data-action="reupload">${t('reupload')}</button>
-      </div>`;
+      </div>
+      ${ADMIN_CACHE.restored_at ? `<div class="restore-note">${t('restored_note', { date: fmtDate(ADMIN_CACHE.restored_at) })}</div>` : ''}`;
 
   return `
     <div class="login-wrap">
@@ -92,6 +94,9 @@ export function bindLoginPageEvents() {
   const reupload = root.querySelector('[data-action="reupload"]');
   if (reupload) {
     reupload.addEventListener('click', () => {
+      // Also forget the local copy on this device — the admin is deliberately
+      // replacing it, so we must not silently restore the old data next boot.
+      clearAdminData();
       setData(makeBootstrapData());
       clearDirty();
       render();

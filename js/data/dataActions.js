@@ -5,9 +5,25 @@
 import {
   DATA,
   setData,
-  markDirty,
-  clearDirty,
+  markDirty as markDirtyState,
+  clearDirty as clearDirtyState,
 } from '../state.js';
+import { scheduleAdminCacheSave } from './adminCache.js';
+
+// Marks the data dirty AND schedules a save of the working copy to this device's
+// local cache, so a re-login can restore it without re-uploading the JSON file.
+// Every mutation below already called markDirty(), so routing dirty-marking
+// through here is all it takes to keep the local copy current.
+function markDirty() {
+  markDirtyState();
+  scheduleAdminCacheSave();
+}
+
+// Clears the dirty flag only. loadJSON/exportJSON call scheduleAdminCacheSave()
+// themselves where a cache write is also wanted.
+function clearDirty() {
+  clearDirtyState();
+}
 
 // ── small local helpers ────────────────────────────────────────────────────
 
@@ -56,6 +72,7 @@ export function loadJSON(jsonString) {
   }
   setData(parsed);
   clearDirty();
+  scheduleAdminCacheSave();
   return { ok: true };
 }
 
@@ -76,6 +93,7 @@ export function exportJSON(currentUser) {
   DATA.meta.exported_by = stampedMeta.exported_by;
   DATA.meta.last_backup_at = stampedMeta.exported_at;
   clearDirty();
+  scheduleAdminCacheSave();
   return { ok: true };
 }
 

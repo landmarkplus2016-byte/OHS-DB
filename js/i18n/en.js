@@ -25,6 +25,7 @@ export const en = {
   inactive_acct: 'This account is inactive',
   admin_only: 'Desktop app is admin-only. Officers use the mobile app URL.',
   reupload: 'Re-upload',
+  restored_note: 'Restored from this device · saved {date}. Export to Drive to keep a backup.',
   officer_hint: 'Safety officers: go to',
   load_err_json: 'Could not read the file — it is not valid JSON.',
   load_err_shape: 'This file is missing required data (meta, users, employees).',
