@@ -93,7 +93,10 @@ export function renderRenewalsPage() {
   const page = Math.min(Math.max(UI.rPage || 1, 1), totalPages);
   const pageRows = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const windowLabel = (w) => (w === '0' ? t('all_including_expired') : t('next_n_days', { days: w }));
+  // Every bounded window still shows already-expired certs (they are the most
+  // urgent renewal work); the number is only the upper, future-facing bound.
+  // The label says so explicitly so the window's behaviour is self-evident.
+  const windowLabel = (w) => (w === '0' ? t('all_including_expired') : t('expired_plus_next_days', { days: w }));
   const windowOptions = WINDOWS.map(
     (w) => `<option value="${w}"${f.window === w ? ' selected' : ''}>${windowLabel(w)}</option>`
   ).join('');

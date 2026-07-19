@@ -173,6 +173,9 @@
 .natid-cell { font-family: ui-monospace, monospace; font-size: 12px; }
 .expired-note { color: var(--danger); font-size: 11px; margin-inline-start: 6px; }
 .tbl tr.row-archived td { opacity: .6; }
+/* Resigned employees are flagged with a red row on the team list pages. */
+.tbl tr.row-resigned td { background: var(--blocked-bg); }
+.tbl tr.row-resigned:hover td { background: color-mix(in srgb, var(--blocked-bg) 92%, var(--text)); }
 .row-actions { white-space: nowrap; }
 .row-actions .btn { margin-inline-end: 4px; }
 

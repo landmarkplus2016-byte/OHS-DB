@@ -310,6 +310,7 @@ export const ar = {
   renewals_intro: 'مرتبة حسب أقرب انتهاء. صفِّ لتخطيط أعمال التجديد.',
   days_window: 'النطاق الزمني',
   next_n_days: 'خلال {days} يوم',
+  expired_plus_next_days: 'المنتهية + خلال {days} يوم',
   all_including_expired: 'الكل (بما في ذلك المنتهية)',
   team_label: 'الفريق',
   filter_cert: 'الشهادة',

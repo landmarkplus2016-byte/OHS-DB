@@ -311,6 +311,7 @@ export const en = {
   renewals_intro: 'Sorted by soonest expiry. Filter to plan your renewal work.',
   days_window: 'Days Window',
   next_n_days: 'Next {days} days',
+  expired_plus_next_days: 'Expired + next {days} days',
   all_including_expired: 'All (including expired)',
   team_label: 'Team',
   filter_cert: 'Certificate',

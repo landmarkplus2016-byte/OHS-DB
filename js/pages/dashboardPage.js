@@ -152,7 +152,13 @@ function backupBannerHtml() {
 
 export function renderDashboardPage() {
   const thr = DATA.meta.warning_thresholds;
-  const active = DATA.employees.filter((e) => !(e.personal && e.personal.archived));
+  // "Active" here means the working roster: not archived AND employment_status
+  // Active. Anyone Suspended/Terminated/Resigned has left the working roster —
+  // the same rule the site-check verdict uses (employment_status !== 'Active'
+  // is a blocker), so the KPI, split, and charts all describe one coherent set.
+  const active = DATA.employees.filter(
+    (e) => !(e.personal && e.personal.archived) && (e.personal || {}).employment_status === 'Active'
+  );
   const fieldCount = active.filter((e) => e.team === 'field').length;
   const safetyCount = active.filter((e) => e.team === 'safety').length;
 
