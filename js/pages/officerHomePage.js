@@ -44,11 +44,14 @@ function thresholds() {
 function searchEmployees(query) {
   const q = query.trim().toLowerCase();
   if (!q) return [];
+  // Digits typed are matched against the National ID with non-digits stripped,
+  // so typing just the last 4 digits finds the crew member.
+  const qDigits = q.replace(/\D/g, '');
   return employees()
     .filter((e) => {
       const name = String(e.name || '').toLowerCase();
-      const natId = String(e.national_id || '');
-      return name.includes(q) || natId.includes(q);
+      const natId = String(e.national_id || '').replace(/\D/g, '');
+      return name.includes(q) || (qDigits.length > 0 && natId.includes(qDigits));
     })
     .slice(0, MAX_RESULTS);
 }

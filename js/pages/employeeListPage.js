@@ -76,9 +76,20 @@ export function renderEmployeeListPage(team) {
     return c;
   };
 
+  // Digits typed into the search box are matched against the National ID with
+  // all non-digits stripped from both sides, so typing just the last 4 digits
+  // (or any run of digits) finds the employee even if the stored ID has spaces.
+  const searchDigits = search.replace(/\D/g, '');
+
   const filtered = base.filter((e) => {
     const p = e.personal || {};
-    if (search && !(e.name || '').toLowerCase().includes(search) && !(e.national_id || '').includes(search)) return false;
+    if (search) {
+      const matchesName = (e.name || '').toLowerCase().includes(search);
+      const matchesId =
+        searchDigits.length > 0 &&
+        (e.national_id || '').replace(/\D/g, '').includes(searchDigits);
+      if (!matchesName && !matchesId) return false;
+    }
     if (titleFilter !== 'all' && p.title !== titleFilter) return false;
     if (subFilter !== 'all' && p.subcontractor !== subFilter) return false;
     if (statusFilter !== 'all') {
