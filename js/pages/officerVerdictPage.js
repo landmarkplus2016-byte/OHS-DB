@@ -103,18 +103,20 @@ function reasonItemHtml(r, cls, icon) {
 }
 
 function certLineHtml(emp, key, thr) {
-  const expiry = (emp.certificates && emp.certificates[key] && emp.certificates[key].expiry_date) || '';
-  const state = deriveCertState(expiry, thr);
-  const d = daysUntil(expiry);
+  const cert = (emp.certificates && emp.certificates[key]) || {};
+  const expiry = cert.expiry_date || '';
+  const state = deriveCertState(expiry, thr, cert.na);
 
-  // A missing expiry has no date and no countdown — just the Missing badge.
+  // N/A: not needed for this employee — show the note instead of a date/countdown.
+  const d = state === 'na' ? null : daysUntil(expiry);
   const age = d === null ? '' : ` (${d >= 0 ? `${d} ${t('days_left')}` : `${Math.abs(d)} ${t('days_ago')}`})`;
+  const dateLine = state === 'na' ? t('cert_na_note') : `${fmtDate(expiry)}${age}`;
 
   return `
     <div class="cert-line">
       <div>
         <div class="cert-line-name">${t(CERT_LABEL_KEYS[key])}</div>
-        <div class="cert-line-date">${fmtDate(expiry)}${age}</div>
+        <div class="cert-line-date">${dateLine}</div>
       </div>
       ${certStateBadgeHtml(state)}
     </div>`;

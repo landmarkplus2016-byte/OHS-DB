@@ -20,9 +20,12 @@ export function deriveSiteCheckVerdict(employee, thresholds) {
   if (p.legal_permission !== 'Approved') blockers.push({ type: 'legal', text: t('reason_legal') });
 
   // Blocker certificates: expired → blocker; expiring within urgent window → warning.
-  // A missing expiry date (empty) is neither a blocker nor a warning.
+  // A missing expiry date (empty) is neither a blocker nor a warning, and a cert
+  // flagged N/A (not needed for this employee) is skipped outright.
   BLOCKER_CERT_KEYS.forEach((k) => {
-    const dtStr = employee.certificates?.[k]?.expiry_date;
+    const cert = employee.certificates?.[k];
+    if (cert?.na) return;
+    const dtStr = cert?.expiry_date;
     if (!dtStr) return;
     const d = daysUntil(dtStr);
     if (d < 0) {
@@ -34,7 +37,9 @@ export function deriveSiteCheckVerdict(employee, thresholds) {
 
   // Warning certificates: expired OR expiring within urgent window → warning only.
   WARNING_CERT_KEYS.forEach((k) => {
-    const dtStr = employee.certificates?.[k]?.expiry_date;
+    const cert = employee.certificates?.[k];
+    if (cert?.na) return;
+    const dtStr = cert?.expiry_date;
     if (!dtStr) return;
     const d = daysUntil(dtStr);
     if (d < 0) {

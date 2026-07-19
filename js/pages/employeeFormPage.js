@@ -54,7 +54,7 @@ function isNewMode() {
 // shape is constant, only what the form shows varies by team.
 function blankEmployee(team) {
   const certificates = {};
-  ALL_CERT_KEYS.forEach((k) => { certificates[k] = { expiry_date: '', file_link: '' }; });
+  ALL_CERT_KEYS.forEach((k) => { certificates[k] = { expiry_date: '', file_link: '', na: false }; });
 
   return {
     national_id: '',
@@ -86,7 +86,7 @@ function draftFromEmployee(emp) {
   const certificates = {};
   ALL_CERT_KEYS.forEach((k) => {
     const c = (emp.certificates && emp.certificates[k]) || {};
-    certificates[k] = { expiry_date: c.expiry_date || '', file_link: c.file_link || '' };
+    certificates[k] = { expiry_date: c.expiry_date || '', file_link: c.file_link || '', na: !!c.na };
   });
 
   return {
@@ -208,21 +208,29 @@ function inputHtml(field, team) {
   </div>`;
 }
 
-// One certificate: expiry date + the external link string. The app never touches
-// the PDF itself (CLAUDE.md rule 15) — file_link is just text we store.
+// One certificate: expiry date + the external link string, plus the "not needed"
+// (N/A) checkbox. The app never touches the PDF itself (CLAUDE.md rule 15) —
+// file_link is just text we store. When N/A is ticked the date/link are disabled
+// (the block dims); the toggle is wired live in bindEmployeeFormPageEvents.
 function certBlockHtml(key) {
   const c = formDraft.certificates[key] || {};
-  return `<div class="cert-edit">
+  const na = !!c.na;
+  const dis = na ? ' disabled' : '';
+  return `<div class="cert-edit${na ? ' cert-edit-na' : ''}" data-cert-block="${key}">
     <div class="cert-edit-name">${t(CERT_LABEL_KEYS[key])}</div>
     <div class="field">
       <label>${t('expiry_date')}</label>
-      <input type="date" data-path="certificates.${key}.expiry_date" value="${escapeHtml(c.expiry_date || '')}">
+      <input type="date" data-path="certificates.${key}.expiry_date" value="${escapeHtml(c.expiry_date || '')}"${dis}>
     </div>
     <div class="field last">
       <label>${t('cert_link')}</label>
       <input type="text" data-path="certificates.${key}.file_link"
-        placeholder="https://drive.google.com/..." value="${escapeHtml(c.file_link || '')}">
+        placeholder="https://drive.google.com/..." value="${escapeHtml(c.file_link || '')}"${dis}>
     </div>
+    <label class="check cert-na-check">
+      <input type="checkbox" data-path="certificates.${key}.na" data-cert-na="${key}"${na ? ' checked' : ''}>
+      ${t('cert_na_label')}
+    </label>
   </div>`;
 }
 
@@ -403,6 +411,20 @@ export function bindEmployeeFormPageEvents() {
     const evt = el.tagName === 'SELECT' || el.type === 'checkbox' ? 'change' : 'input';
     el.addEventListener(evt, () => {
       setPath(formDraft, el.dataset.path, el.type === 'checkbox' ? el.checked : el.value);
+    });
+  });
+
+  // N/A checkboxes: the generic listener above already writes the flag into the
+  // draft; here we also dim the block and disable its date/link inputs live, so
+  // the "not needed" state reads clearly without a full re-render.
+  document.querySelectorAll('[data-cert-na]').forEach((cb) => {
+    cb.addEventListener('change', () => {
+      const block = document.querySelector(`[data-cert-block="${cb.dataset.certNa}"]`);
+      if (!block) return;
+      block.classList.toggle('cert-edit-na', cb.checked);
+      block.querySelectorAll('input[type="date"], input[type="text"]').forEach((inp) => {
+        inp.disabled = cb.checked;
+      });
     });
   });
 

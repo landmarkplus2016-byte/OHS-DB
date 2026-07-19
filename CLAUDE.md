@@ -217,16 +217,16 @@ This account exists only in memory. It is never written to any JSON. Real admin 
         "archived_by": ""
       },
       "certificates": {
-        "wah_practical":   { "expiry_date": "2028-03-04", "file_link": "" },
-        "wah_theoretical": { "expiry_date": "2028-03-04", "file_link": "" },
-        "ra":  { "expiry_date": "2027-01-13", "file_link": "" },
-        "fa":  { "expiry_date": "2027-01-10", "file_link": "" },
-        "ff":  { "expiry_date": "2027-01-11", "file_link": "" },
-        "ec":  { "expiry_date": "2028-01-11", "file_link": "" },
-        "mcu": { "expiry_date": "2026-11-01", "file_link": "" },
-        "ppe_inspection": { "expiry_date": "", "file_link": "" },
-        "lifting":        { "expiry_date": "", "file_link": "" },
-        "scaffolding":    { "expiry_date": "", "file_link": "" }
+        "wah_practical":   { "expiry_date": "2028-03-04", "file_link": "", "na": false },
+        "wah_theoretical": { "expiry_date": "2028-03-04", "file_link": "", "na": false },
+        "ra":  { "expiry_date": "2027-01-13", "file_link": "", "na": false },
+        "fa":  { "expiry_date": "2027-01-10", "file_link": "", "na": false },
+        "ff":  { "expiry_date": "2027-01-11", "file_link": "", "na": false },
+        "ec":  { "expiry_date": "2028-01-11", "file_link": "", "na": false },
+        "mcu": { "expiry_date": "2026-11-01", "file_link": "", "na": false },
+        "ppe_inspection": { "expiry_date": "", "file_link": "", "na": false },
+        "lifting":        { "expiry_date": "", "file_link": "", "na": false },
+        "scaffolding":    { "expiry_date": "", "file_link": "", "na": false }
       },
       "qualifications": {
         "nebosh_igc": false,
@@ -264,6 +264,7 @@ This account exists only in memory. It is never written to any JSON. Real admin 
 - **`national_id`** — searchable, indexed by users mentally, but NOT the primary key. Egyptian national IDs are 14 digits and should not be used as URL fragments (PII).
 - **`team`** — `"field"` or `"safety"`. Discriminator that drives which certificates and qualifications apply. Cannot change after creation (change of team means archive + create new).
 - **`certificates.*.file_link`** — free-text string. Admin pastes a Google Drive share URL, a Windows path (`Z:\ohs\certs\...`), or any URL. If empty, no "Open certificate" button shows. App never validates or opens the link itself beyond passing it to `window.open()`.
+- **`certificates.*.na`** — boolean. `true` means this certificate is **not needed for this employee**. An N/A cert derives to the `na` state (never `missing`) and is excluded from the "worst" aggregate, the renewals worklist, the dashboard charts/sparklines, and the site-check verdict (it can neither block nor warn). It travels with the field snapshot so the officer app derives the same result. Absent/falsy `na` behaves exactly as before.
 - **`ppe_inspection` / `lifting` / `scaffolding`** — always present in the JSON schema, but only shown in the form/detail for `team === "safety"`. Field team employees have these fields but they stay empty forever.
 - **`qualifications.*`** — same pattern, safety team only.
 - **`drug_tests`** — field team uses `rdt_1` + `rdt_2`; safety team uses `rdt` (single). All three fields exist in every employee record but only the relevant ones are shown.
@@ -278,7 +279,8 @@ Certificate status is computed at render time by `deriveCertState(expiryDate, th
 
 | State | Condition (given today's date) | Color |
 |---|---|---|
-| `missing` | expiry_date is empty | Gray |
+| `na` | `certificates.<key>.na === true` (not needed for this employee) | Slate |
+| `missing` | expiry_date is empty (and not N/A) | Gray |
 | `expired` | expiry_date < today | Red |
 | `urgent` | expiry_date within `urgent_days` (default 30) | Orange |
 | `soon` | expiry_date within `soon_days` (default 60) | Amber |
@@ -303,7 +305,7 @@ Applicable certs depend on team:
 
 `missing` certs on applicable keys count in `worst` only when they're the ONLY state present (all valid → worst is `valid`, but valid + missing → worst is still `missing` for display honesty).
 
-State ranking (highest wins for `worst`): expired > urgent > soon > plan > missing > valid.
+State ranking (highest wins for `worst`): expired > urgent > soon > plan > missing > valid. `na` certs are skipped entirely — they never contribute to `worst`, `expiring_soon_count`, or `expired_count`.
 
 ---
 

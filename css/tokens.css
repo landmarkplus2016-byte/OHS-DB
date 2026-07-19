@@ -28,6 +28,7 @@
   --plan-bg:    #fef9c3;  --plan-tx:     #854d0e;
   --urgent-bg:  #ffe4e6;  --urgent-tx:   #9f1239;
   --missing-bg: #f3f4f6;  --missing-tx:  #6b7280;
+  --na-bg:      #e6ecf4;  --na-tx:       #4a5a72;
 
   --team-field-bg: #e0e7ff;  --team-field-tx: #3730a3;  /* team tag — field */
   --team-safety-bg: #fce7f3; --team-safety-tx: #9d174d;  /* team tag — safety */

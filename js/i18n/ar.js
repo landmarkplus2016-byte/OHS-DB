@@ -148,6 +148,9 @@ export const ar = {
   st_urgent: 'خلال ٣٠ يوم',
   st_expired: 'منتهي',
   st_missing: 'مفقود',
+  st_na: 'غير مطلوبة',
+  cert_na_label: 'غير مطلوبة لهذا الموظف',
+  cert_na_note: 'غير مطلوبة لهذا الموظف',
   days_left: 'يوم متبقي',
   days_ago: 'يوم مضى',
 

@@ -126,6 +126,7 @@
 .badge.st-urgent  { background: var(--urgent-bg);  color: var(--urgent-tx); }
 .badge.st-expired { background: var(--blocked-bg); color: var(--blocked-dark); }
 .badge.st-missing { background: var(--missing-bg); color: var(--missing-tx); }
+.badge.st-na      { background: var(--na-bg);      color: var(--na-tx); }
 /* Site-check verdict. */
 .badge.v-cleared { background: var(--cleared-bg); color: var(--cleared-dark); }
 .badge.v-warning { background: var(--warn-bg);    color: var(--warn-dark); }
@@ -182,6 +183,7 @@
 .cert-state.cs-urgent  { background: var(--urgent-bg);  color: var(--urgent-tx); }
 .cert-state.cs-expired { background: var(--blocked-bg); color: var(--blocked-dark); }
 .cert-state.cs-missing { background: var(--missing-bg); color: var(--missing-tx); }
+.cert-state.cs-na      { background: var(--na-bg);      color: var(--na-tx); }
 
 /* ---------- Section heading ---------- */
 /* Used to title the panels on detail/form/settings pages. */

@@ -33,7 +33,9 @@ function buildRenewalRows(thresholds) {
     .filter((e) => !(e.personal && e.personal.archived))
     .forEach((e) => {
       applicableCerts(e).forEach((k) => {
-        const expiry = e.certificates?.[k]?.expiry_date;
+        const cert = e.certificates?.[k];
+        if (cert?.na) return; // not needed for this employee — not renewal work
+        const expiry = cert?.expiry_date;
         if (!expiry) return;
         rows.push({
           employee: e,

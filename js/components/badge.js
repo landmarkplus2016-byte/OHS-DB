@@ -5,7 +5,7 @@
 import { t } from '../i18n/i18n.js';
 import { escapeHtml } from '../utils/format.js';
 
-const CERT_STATES = ['valid', 'plan', 'soon', 'urgent', 'expired', 'missing'];
+const CERT_STATES = ['valid', 'plan', 'soon', 'urgent', 'expired', 'missing', 'na'];
 const VERDICTS = ['cleared', 'warning', 'blocked'];
 
 // Small per-certificate state pill (cert rows, verdict cert list).

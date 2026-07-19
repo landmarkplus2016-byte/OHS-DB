@@ -53,7 +53,8 @@ export function flattenEmployeeForExcel(employee) {
   };
 
   ALL_CERT_KEYS.forEach((k) => {
-    row['cert_' + k + '_expiry'] = isoDay(employee.certificates?.[k]?.expiry_date);
+    const cert = employee.certificates?.[k];
+    row['cert_' + k + '_expiry'] = cert?.na ? 'N/A' : isoDay(cert?.expiry_date);
   });
 
   row.qual_nebosh_igc = q.nebosh_igc ? 'Yes' : 'No';
@@ -161,7 +162,10 @@ export function exportToPDF(employees, lang) {
       theme: 'grid',
       headStyles,
       head: [[t('section_certs'), t('expiry_date')]],
-      body: applicableCerts(emp).map((k) => [t(CERT_LABEL_KEYS[k]), fmtDate(emp.certificates?.[k]?.expiry_date)]),
+      body: applicableCerts(emp).map((k) => {
+        const cert = emp.certificates?.[k];
+        return [t(CERT_LABEL_KEYS[k]), cert?.na ? t('st_na') : fmtDate(cert?.expiry_date)];
+      }),
     });
 
     // Qualifications (safety only)

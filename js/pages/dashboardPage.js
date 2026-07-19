@@ -31,7 +31,9 @@ function applicableDaysList(employees) {
   const out = [];
   employees.forEach((e) => {
     applicableCerts(e).forEach((k) => {
-      const d = daysUntil(e.certificates?.[k]?.expiry_date);
+      const cert = e.certificates?.[k];
+      if (cert?.na) return; // not needed for this employee — off the compliance clock
+      const d = daysUntil(cert?.expiry_date);
       if (d != null) out.push(d);
     });
   });
@@ -177,7 +179,9 @@ export function renderDashboardPage() {
   const planWindow = thr.plan_days;
   const byCert = {};
   active.forEach((e) => applicableCerts(e).forEach((k) => {
-    const d = daysUntil(e.certificates?.[k]?.expiry_date);
+    const cert = e.certificates?.[k];
+    if (cert?.na) return; // not needed for this employee — excluded from the chart
+    const d = daysUntil(cert?.expiry_date);
     if (d == null || d < 0 || d > planWindow) return;
     const label = t(CERT_LABEL_KEYS[k]);
     byCert[label] = (byCert[label] || 0) + 1;

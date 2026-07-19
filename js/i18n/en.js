@@ -149,6 +149,9 @@ export const en = {
   st_urgent: 'Renew in ≤30d',
   st_expired: 'Expired',
   st_missing: 'Missing',
+  st_na: 'N/A',
+  cert_na_label: 'Not needed (N/A)',
+  cert_na_note: 'Not needed for this employee',
   days_left: 'days left',
   days_ago: 'days ago',
 

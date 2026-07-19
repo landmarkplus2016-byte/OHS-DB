@@ -85,6 +85,19 @@ function fieldDispHtml(labelKey, value, extraClass = '') {
 // View button when a link was recorded.
 function certRowHtml(emp, key, state) {
   const cert = (emp.certificates && emp.certificates[key]) || {};
+
+  // N/A: this cert is not needed for this employee — show the note, no date,
+  // no countdown, no View button (the derivation has already excluded it).
+  if (state === 'na') {
+    return `<div class="cert-row cert-row-na">
+      <div class="cert-info">
+        <div class="name">${t(CERT_LABEL_KEYS[key])}</div>
+        <div class="date muted">${t('cert_na_note')}</div>
+      </div>
+      <div class="cert-actions">${certStateBadgeHtml('na')}</div>
+    </div>`;
+  }
+
   const days = daysUntil(cert.expiry_date);
   const rel = days == null
     ? ''
