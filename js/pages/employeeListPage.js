@@ -51,6 +51,16 @@ export function employeeListTopbar(view) {
   return { title, sub: t('n_employees', { n: count }), actions };
 }
 
+// The date of this employee's most recent completed RDT, or '—' if none.
+// Derived from rdt_log at render time — display only, not sortable in v1.
+function lastRdtCell(emp) {
+  const log = Array.isArray(emp.rdt_log) ? emp.rdt_log : [];
+  const completed = log.filter((e) => e.status === 'completed' && e.test_date);
+  if (!completed.length) return '—';
+  completed.sort((a, b) => String(b.test_date).localeCompare(String(a.test_date)));
+  return fmtDate(completed[0].test_date);
+}
+
 // Small NEBOSH/ISO/OSHA pills for the safety-team quals column.
 function qualsCellHtml(emp) {
   const q = emp.qualifications || {};
@@ -134,7 +144,7 @@ export function renderEmployeeListPage(view) {
     ? Array.from(new Set([...getFieldOptions('field_titles'), ...getFieldOptions('safety_titles')]))
     : getFieldOptions(view === 'field' ? 'field_titles' : 'safety_titles');
   const subs = getFieldOptions('subcontractors');
-  const colCount = showQuals ? 8 : 7;
+  const colCount = showQuals ? 9 : 8;
 
   const optionsHtml = (list, current) =>
     list.map((x) => `<option value="${escapeHtml(x)}"${current === x ? ' selected' : ''}>${escapeHtml(x)}</option>`).join('');
@@ -161,6 +171,7 @@ export function renderEmployeeListPage(view) {
         <td>${complianceBadgeHtml(c.worst)}${c.expired_count ? `<span class="expired-note">${t('n_expired', { n: c.expired_count })}</span>` : ''}</td>
         ${showQuals ? `<td>${qualsCellHtml(e)}</td>` : ''}
         <td>${fmtDate(e.meta && e.meta.updated_at)}</td>
+        <td>${lastRdtCell(e)}</td>
         <td class="row-actions">${rowActionsHtml(e)}</td>
       </tr>`;
   }).join('');
@@ -215,6 +226,7 @@ export function renderEmployeeListPage(view) {
           <th>${t('col_state')}</th>
           ${showQuals ? `<th>${t('col_quals')}</th>` : ''}
           <th>${t('col_updated')}</th>
+          <th>${t('col_last_rdt')}</th>
           <th>${t('col_actions')}</th>
         </tr>
       </thead>

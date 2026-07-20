@@ -110,6 +110,37 @@ export function exportRenewalsToExcel(renewalRows) {
   window.XLSX.writeFile(wb, `OHS-Renewals-${todayISO()}.xlsx`);
 }
 
+// One flat object per RDT log entry — the unit here is the individual test
+// record, not the employee. `row` is an RDT history row: { employee, entry }.
+export function flattenRdtHistoryForExcel(row) {
+  const p = row.employee.personal || {};
+  const e = row.entry;
+  return {
+    employee_id: row.employee.employee_id || '',
+    national_id: row.employee.national_id || '',
+    name: row.employee.name || '',
+    team: row.employee.team || '',
+    title: p.title || '',
+    log_id: e.log_id || '',
+    fiscal_year: e.fiscal_year || '',
+    selected_at: isoDay(e.selected_at),
+    selected_by: e.selected_by || '',
+    test_date: isoDay(e.test_date),
+    status: e.status || '',
+    result: e.result || '',
+    notes: e.notes || '',
+  };
+}
+
+// Downloads an .xlsx of the given RDT history rows (one row per log entry).
+export function exportRdtHistoryToExcel(historyRows) {
+  const rows = historyRows.map(flattenRdtHistoryForExcel);
+  const ws = window.XLSX.utils.json_to_sheet(rows);
+  const wb = window.XLSX.utils.book_new();
+  window.XLSX.utils.book_append_sheet(wb, ws, 'RDT History');
+  window.XLSX.writeFile(wb, `OHS-RDT-History-${todayISO()}.xlsx`);
+}
+
 // Downloads a .csv with the same columns as the Excel export.
 export function exportToCSV(employees) {
   const rows = employees.map(flattenEmployeeForExcel);

@@ -19,7 +19,7 @@ import { t } from '../i18n/i18n.js';
 // Collapses a header to a comparable form: lowercase, punctuation to spaces,
 // a space inserted at every letter/digit boundary, whitespace squeezed. This is
 // what makes 'Sub-Contractor', 'sub contractor', and 'SubContractor' one key,
-// and what lets the single alias 'rdt 1' cover both 'RDT1' and 'RDT 1 Date'.
+// and what lets the single alias 'wah p' cover both 'WAHP' and 'WAH P'.
 function normHeader(h) {
   return String(h == null ? '' : h)
     .toLowerCase()
@@ -67,9 +67,10 @@ const COLUMNS = [
   { path: 'qualifications.iso_45001', type: 'bool', aliases: ['iso', 'iso 45001', 'iso 45001 lead auditor'] },
   { path: 'qualifications.osha', type: 'bool', aliases: ['osha', 'osha 30', 'osha certificate'] },
 
-  { path: 'drug_tests.rdt_1', type: 'date', aliases: ['rdt 1', 'rdt 1 date', 'rdt 1 expiry date', 'first rdt'] },
-  { path: 'drug_tests.rdt_2', type: 'date', aliases: ['rdt 2', 'rdt 2 date', 'rdt 2 expiry date', 'second rdt'] },
-  { path: 'drug_tests.rdt', type: 'date', aliases: ['rdt', 'rdt date', 'rdt expiry date'] },
+  // NOTE: legacy RDT date columns (RDT 1 / RDT 2 / RDT) are intentionally NOT
+  // mapped. The flat drug_tests object was removed with the RDT feature — any
+  // RDT-shaped column in a source workbook is silently ignored, and new tests
+  // are recorded through the RDT page instead.
 ];
 
 // alias -> column, built once. A duplicate alias across two columns would be a
@@ -246,7 +247,7 @@ function makeEmptyEmployee(team) {
     },
     certificates,
     qualifications: { nebosh_igc: false, iso_45001: false, osha: false },
-    drug_tests: { rdt_1: '', rdt_2: '', rdt: '' },
+    rdt_log: [],
     renewal_history: [],
   };
 }
@@ -469,7 +470,6 @@ function buildOverwriteUpdates(existing, row) {
   // siblings survive.
   if (updates.personal) updates.personal = { ...existing.personal, ...updates.personal };
   if (updates.qualifications) updates.qualifications = { ...existing.qualifications, ...updates.qualifications };
-  if (updates.drug_tests) updates.drug_tests = { ...existing.drug_tests, ...updates.drug_tests };
   if (updates.certificates) {
     const merged = { ...existing.certificates };
     for (const key of Object.keys(updates.certificates)) {

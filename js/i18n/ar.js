@@ -288,6 +288,7 @@ export const ar = {
   reason_unknown_sub: 'المقاول الفرعي "{value}" غير موجود في قائمتك',
   reason_unknown_title: 'المسمى "{value}" غير موجود في قائمتك',
   confirm_import: 'تأكيد الاستيراد',
+  import_rdt_ignored_note: 'تم تجاهل أعمدة تواريخ الفحص العشوائي القديمة في هذا الملف — استخدم صفحة الفحص العشوائي لتسجيل الفحوصات الجديدة.',
   import_warnings: 'تحذيرات ({n})',
   toast_import_done: 'تم الاستيراد — {added} مضاف، {updated} محدّث',
   toast_import_none: 'لا شيء للاستيراد — كل الصفوف مضبوطة على التخطي.',
@@ -354,4 +355,92 @@ export const ar = {
   sync_err_server: 'الخادم أعاد رداً غير متوقع. تواصل مع المدير.',
   sync_err_no_url: 'لا يوجد رابط مزامنة. اطلب الرابط من المدير.',
   sync_err_no_site_check: 'هذا الحساب غير مسموح له بإجراء فحص الموقع.',
+
+  // ---------- RDT (الفحص العشوائي للمخدرات) ----------
+  nav_rdt: 'الفحص العشوائي',
+
+  rdt_page_title: 'الفحص العشوائي للمخدرات',
+  rdt_page_sub: 'الاختيار الشهري وتتبع الامتثال السنوي',
+  rdt_history_title: 'سجل الفحص العشوائي',
+
+  rdt_enable_prompt: 'لم يتم إعداد تتبع الفحص العشوائي لهذه البيانات بعد.',
+  rdt_enable_button: 'تفعيل ميزة الفحص العشوائي',
+
+  rdt_fiscal_year: 'السنة المالية {label}',
+  rdt_pool_size: 'الموظفون المؤهلون',
+  rdt_yearly_target: 'الهدف السنوي',
+  rdt_completed: 'مكتمل',
+  rdt_unique_tested: 'عدد الموظفين المختبَرين',
+  rdt_coverage: 'التغطية',
+  rdt_target_progress: 'تقدم الهدف',
+
+  rdt_this_month: 'اختيار هذا الشهر',
+  rdt_month_phase_normal: 'فحوص أولى (مرحلة أبريل–يناير)',
+  rdt_month_phase_repeat: 'فحوص متكررة (مرحلة فبراير/مارس)',
+  rdt_generate: 'إنشاء اختيار هذا الشهر',
+  rdt_regenerate: 'إعادة إنشاء هذا الشهر',
+  rdt_no_selection: 'لم يتم إنشاء اختيار لهذا الشهر بعد.',
+  rdt_quota_line: '{quota} من {pool} مؤهل ({pct}%)',
+  rdt_no_eligible: 'لا يوجد موظفون مؤهلون لهذه المرحلة.',
+  rdt_confirm_regenerate: 'إعادة إنشاء قائمة هذا الشهر؟ سيتم تجاهل الاختيارات التي لم تكتمل بعد.',
+
+  rdt_mark_completed: 'تحديد كمكتمل',
+  rdt_mark_missed: 'تحديد كفائت',
+  rdt_swap: 'استبدال',
+  rdt_edit: 'تعديل',
+  rdt_delete: 'حذف',
+
+  rdt_complete_title: 'تحديد الفحص كمكتمل',
+  rdt_test_date: 'تاريخ الفحص',
+  rdt_result: 'النتيجة',
+  rdt_result_pass: 'ناجح',
+  rdt_result_fail: 'راسب',
+  rdt_notes: 'ملاحظات',
+
+  rdt_miss_title: 'تحديد الفحص كفائت',
+  rdt_miss_reason: 'السبب (إجازة، رفض، عدم حضور، إلخ)',
+
+  rdt_swap_confirm: 'استبدال {name} بموظف عشوائي بديل؟',
+  rdt_swap_no_replacement: 'لا يوجد بديل متاح في المجموعة المؤهلة الحالية.',
+  rdt_swap_done: 'تم استبدال {oldName} بـ {newName}',
+
+  rdt_delete_confirm: 'حذف هذا السجل؟ لا يمكن التراجع.',
+
+  rdt_status_selected: 'مختار',
+  rdt_status_completed: 'مكتمل',
+  rdt_status_missed: 'فائت',
+
+  rdt_filter_month: 'الشهر',
+  rdt_filter_status: 'الحالة',
+  rdt_filter_result: 'النتيجة',
+  rdt_filter_team: 'الفريق',
+
+  rdt_history_section: 'سجل الفحص العشوائي',
+  rdt_history_empty: 'لا توجد سجلات بعد.',
+
+  col_last_rdt: 'آخر فحص عشوائي',
+
+  rdt_settings_title: 'إعدادات الفحص العشوائي',
+  rdt_setting_fy_start: 'شهر بداية السنة المالية',
+  rdt_setting_monthly_pct: 'الهدف الشهري %',
+  rdt_setting_yearly_pct: 'الهدف السنوي %',
+  rdt_setting_hire_grace: 'مهلة الموظف الجديد (أشهر)',
+  rdt_setting_repeat_months: 'أشهر التكرار',
+
+  // RDT — مفاتيح إضافية تحتاجها الصفحة (خارج قائمة الملحق)
+  rdt_recent_activity: 'النشاط الأخير',
+  rdt_view_history: 'عرض السجل الكامل ←',
+  rdt_first_round_marker: 'اكتمال الجولة الأولى',
+  col_emp_id: 'المعرّف',
+  rdt_col_selected_at: 'تاريخ الاختيار',
+  rdt_col_employee: 'الموظف',
+  rdt_col_log_id: 'رقم السجل',
+  rdt_col_selected_by: 'اختاره',
+  rdt_export_history: 'تصدير السجل إلى Excel',
+  rdt_n_entries: '{n} سجل',
+  rdt_toast_generated: 'تم اختيار {n} موظف لهذا الشهر',
+  rdt_toast_completed: 'تم تحديد الفحص كمكتمل',
+  rdt_toast_missed: 'تم تحديد الفحص كفائت',
+  rdt_toast_edited: 'تم تحديث السجل',
+  rdt_toast_deleted: 'تم حذف السجل',
 };

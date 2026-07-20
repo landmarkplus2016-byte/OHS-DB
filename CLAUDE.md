@@ -750,3 +750,5 @@ Use CSS logical properties everywhere for RTL support (`margin-inline-start/end`
 - Never let an export silently truncate over its cap — block it and tell the user to narrow filters
 - Never store or open a certificate PDF from within the app — file_link is a string that gets passed to `window.open()` and nothing more
 - Never add a feature not in this file without confirming with Khaled
+## Feature Addenda
+- `CLAUDE.rdt.md` — Random Drug Testing (RDT) feature spec

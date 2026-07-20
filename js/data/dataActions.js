@@ -9,6 +9,15 @@ import {
   clearDirty as clearDirtyState,
 } from '../state.js';
 import { scheduleAdminCacheSave } from './adminCache.js';
+import { todayISO } from '../utils/format.js';
+import {
+  generateMonthlySelection,
+  eligibleEmployees,
+  selectedOrCompletedThisMonth,
+  isRepeatMonth,
+  testedThisYear,
+  currentFiscalYear,
+} from '../utils/rdt.js';
 
 // Marks the data dirty AND schedules a save of the working copy to this device's
 // local cache, so a re-login can restore it without re-uploading the JSON file.
@@ -223,11 +232,182 @@ export function updateMeta(metaUpdates) {
   markDirty();
 }
 
+// ── RDT (random drug testing) ───────────────────────────────────────────────
+//
+// The pure selection maths lives in utils/rdt.js. These wrappers own the
+// side effects: writing log entries into each employee's rdt_log, bumping the
+// log-number counter, and marking dirty. RDT is admin-only — publishFieldSnapshot
+// strips rdt_log and meta.rdt before anything reaches the officer app.
+
+// Default meta.rdt block, kept in sync with makeBootstrapData() in bootstrap.js.
+const RDT_DEFAULTS = {
+  enabled: true,
+  fiscal_year_start_month: 4,
+  monthly_target_pct: 10,
+  yearly_target_pct: 120,
+  hire_grace_months: 3,
+  repeat_months: [2, 3],
+  next_log_number: 1,
+};
+
+// Builds a fresh 'selected' log entry for `emp`, consuming the next log number.
+function pushRdtSelection(emp, fyLabel, username) {
+  const rdt = DATA.meta.rdt;
+  const log_id = `rdt-${String(rdt.next_log_number).padStart(6, '0')}`;
+  rdt.next_log_number += 1;
+  if (!Array.isArray(emp.rdt_log)) emp.rdt_log = [];
+  emp.rdt_log.push({
+    log_id,
+    fiscal_year: fyLabel,
+    selected_at: todayISO(),
+    selected_by: username,
+    status: 'selected',
+    test_date: '',
+    result: '',
+    notes: '',
+  });
+  return log_id;
+}
+
+// Seeds DATA.meta.rdt with defaults if it is missing or currently disabled.
+// Existing config values are preserved; only `enabled` is forced on.
+export function enableRdt() {
+  const cur = DATA.meta.rdt;
+  if (cur && cur.enabled) return;
+  DATA.meta.rdt = { ...RDT_DEFAULTS, ...(cur || {}), enabled: true };
+  markDirty();
+}
+
+// Generates this month's selection and writes a 'selected' log entry per picked
+// employee. Returns [{ employee_id, log_id }, ...] for the created entries.
+export function generateAndSaveMonthlySelection(user) {
+  const today = new Date();
+  const rdt = DATA.meta.rdt;
+  const fy = currentFiscalYear(today, rdt.fiscal_year_start_month);
+  const username = user ? user.username : 'system';
+
+  const selected = generateMonthlySelection(DATA.employees, today, rdt);
+  const created = [];
+  for (const emp of selected) {
+    const log_id = pushRdtSelection(emp, fy.label, username);
+    created.push({ employee_id: emp.employee_id, log_id });
+  }
+
+  markDirty();
+  return created;
+}
+
+// Locates the log entry and returns { emp, entry } or null.
+function findRdtEntry(employee_id, log_id) {
+  const emp = DATA.employees.find((e) => e.employee_id === employee_id);
+  if (!emp) return null;
+  const entry = (emp.rdt_log || []).find((x) => x.log_id === log_id);
+  if (!entry) return null;
+  return { emp, entry };
+}
+
+// Marks a still-'selected' entry completed with its test date, result, and notes.
+export function markRdtCompleted(employee_id, log_id, test_date, result, notes) {
+  const found = findRdtEntry(employee_id, log_id);
+  if (!found || found.entry.status !== 'selected') {
+    return { ok: false, error: 'entry_not_found' };
+  }
+  found.entry.status = 'completed';
+  found.entry.test_date = test_date || '';
+  found.entry.result = result || '';
+  found.entry.notes = notes || '';
+  markDirty();
+  return { ok: true };
+}
+
+// Marks a still-'selected' entry missed. test_date stays empty — a missed test
+// re-opens the employee's eligibility for a later month.
+export function markRdtMissed(employee_id, log_id, notes) {
+  const found = findRdtEntry(employee_id, log_id);
+  if (!found || found.entry.status !== 'selected') {
+    return { ok: false, error: 'entry_not_found' };
+  }
+  found.entry.status = 'missed';
+  found.entry.notes = notes || '';
+  markDirty();
+  return { ok: true };
+}
+
+// Swaps a still-'selected' entry for a fresh random pick. The original entry is
+// deleted (not marked missed — swap is "we knew in advance"), and a replacement
+// is chosen from the current eligible pool respecting the fiscal-year phase,
+// excluding anyone already selected/completed this month AND the original person.
+export function swapRdtSelection(employee_id, log_id, user) {
+  const emp = DATA.employees.find((e) => e.employee_id === employee_id);
+  if (!emp) return { ok: false, error: 'entry_not_found' };
+  const log = emp.rdt_log || [];
+  const idx = log.findIndex((x) => x.log_id === log_id);
+  if (idx === -1 || log[idx].status !== 'selected') {
+    return { ok: false, error: 'entry_not_found' };
+  }
+
+  log.splice(idx, 1);
+
+  const today = new Date();
+  const rdt = DATA.meta.rdt;
+  const fy = currentFiscalYear(today, rdt.fiscal_year_start_month);
+  const monthISO = today.toISOString().slice(0, 7);
+
+  const pool = eligibleEmployees(DATA.employees, today, rdt)
+    .filter((e) => !selectedOrCompletedThisMonth(e, monthISO));
+  let candidates = isRepeatMonth(today, rdt)
+    ? pool.filter((e) => testedThisYear(e, fy.label))
+    : pool.filter((e) => !testedThisYear(e, fy.label));
+  // Never re-pick the person just swapped out, even if removing their entry
+  // dropped them back out of selectedOrCompletedThisMonth.
+  candidates = candidates.filter((e) => e.employee_id !== employee_id);
+
+  if (!candidates.length) return { ok: false, error: 'no_replacement' };
+
+  const pick = candidates[Math.floor(Math.random() * candidates.length)];
+  const username = user ? user.username : 'system';
+  const replacement_log_id = pushRdtSelection(pick, fy.label, username);
+
+  markDirty();
+  return {
+    ok: true,
+    replacement_employee_id: pick.employee_id,
+    replacement_log_id,
+  };
+}
+
+// Corrects an existing entry. Whitelisted to test_date, result, and notes only —
+// status, log_id, fiscal_year, and the selection metadata are never editable.
+export function editRdtEntry(employee_id, log_id, updates) {
+  const found = findRdtEntry(employee_id, log_id);
+  if (!found) return { ok: false, error: 'entry_not_found' };
+  const allowed = ['test_date', 'result', 'notes'];
+  for (const key of allowed) {
+    if (Object.prototype.hasOwnProperty.call(updates || {}, key)) {
+      found.entry[key] = updates[key];
+    }
+  }
+  markDirty();
+  return { ok: true };
+}
+
+// Hard-deletes an entry (UI must confirm first).
+export function deleteRdtEntry(employee_id, log_id) {
+  const emp = DATA.employees.find((e) => e.employee_id === employee_id);
+  if (!emp) return { ok: false, error: 'entry_not_found' };
+  const log = emp.rdt_log || [];
+  const idx = log.findIndex((x) => x.log_id === log_id);
+  if (idx === -1) return { ok: false, error: 'entry_not_found' };
+  log.splice(idx, 1);
+  markDirty();
+  return { ok: true };
+}
+
 // ── field snapshot (officer app) ────────────────────────────────────────────
 
 // Returns a copy of `emp` stripped of everything officers must never receive:
-// renewal_history and every certificate's file_link. Certificate expiry dates
-// are kept so the officer app can derive verdicts.
+// renewal_history, rdt_log, and every certificate's file_link. Certificate
+// expiry dates are kept so the officer app can derive verdicts.
 function stripEmployeeForField(emp) {
   const certificates = {};
   if (emp.certificates) {
@@ -238,6 +418,7 @@ function stripEmployeeForField(emp) {
   }
   const stripped = { ...emp, certificates };
   delete stripped.renewal_history;
+  delete stripped.rdt_log;
   return stripped;
 }
 

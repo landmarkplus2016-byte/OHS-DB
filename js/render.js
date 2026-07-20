@@ -26,6 +26,14 @@ import {
 } from './pages/employeeFormPage.js';
 import { renderDashboardPage, dashboardTopbar, bindDashboardPageEvents } from './pages/dashboardPage.js';
 import { renderRenewalsPage, renewalsTopbar, bindRenewalsPageEvents } from './pages/renewalsPage.js';
+import {
+  renderRdtPage,
+  rdtTopbar,
+  bindRdtPageEvents,
+  renderRdtHistoryPage,
+  rdtHistoryTopbar,
+  bindRdtHistoryPageEvents,
+} from './pages/rdtPage.js';
 import { renderExportPage, exportTopbar, bindExportPageEvents } from './pages/exportPage.js';
 import { renderSettingsPage, bindSettingsPageEvents } from './pages/settingsPage.js';
 import { renderOfficerLoginPage, bindOfficerLoginPageEvents } from './pages/officerLoginPage.js';
@@ -46,6 +54,8 @@ const PAGES = {
   employee: renderEmployeeDetailPage,
   'employee/edit': renderEmployeeFormPage,
   renewals: renderRenewalsPage,
+  rdt: renderRdtPage,
+  'rdt/history': renderRdtHistoryPage,
   export: renderExportPage,
   settings: renderSettingsPage,
 };
@@ -92,6 +102,8 @@ const BINDERS = {
   login: bindLoginPageEvents,
   dashboard: bindDashboardPageEvents,
   renewals: bindRenewalsPageEvents,
+  rdt: bindRdtPageEvents,
+  'rdt/history': bindRdtHistoryPageEvents,
   export: bindExportPageEvents,
   settings: bindSettingsPageEvents,
   field: bindEmployeeListPageEvents,
@@ -109,6 +121,8 @@ const BINDERS = {
 const TOPBARS = {
   dashboard: dashboardTopbar,
   renewals: renewalsTopbar,
+  rdt: rdtTopbar,
+  'rdt/history': rdtHistoryTopbar,
   export: exportTopbar,
   field: () => employeeListTopbar('field'),
   safety: () => employeeListTopbar('safety'),
@@ -128,6 +142,7 @@ function adminTopbarMeta(route) {
     safety: 'nav_safety',
     separated: 'nav_separated',
     renewals: 'nav_renewals',
+    rdt: 'rdt_page_title',
     export: 'nav_export',
     settings: 'nav_settings',
   };

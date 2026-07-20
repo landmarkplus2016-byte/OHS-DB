@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { route: 'safety', ic: '⛑', key: 'nav_safety' },
   { route: 'separated', ic: '⛔', key: 'nav_separated' },
   { route: 'renewals', ic: '⏱', key: 'nav_renewals' },
+  { route: 'rdt', ic: '⚗', key: 'nav_rdt' },
   { route: 'export', ic: '↓', key: 'nav_export' },
   { route: 'settings', ic: '⚙', key: 'nav_settings', admin: true },
 ];

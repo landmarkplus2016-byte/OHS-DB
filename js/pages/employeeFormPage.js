@@ -6,8 +6,8 @@
 //   'field/new' / 'safety/new'  -> new mode, team taken from the route
 //   'employee/edit' + param id  -> edit mode, draft cloned from the record
 //
-// Every input is described by a field list (PERSONAL_FIELDS / QUAL_FIELDS /
-// drugFields) and rendered from it, so adding a field means editing one list.
+// Every input is described by a field list (PERSONAL_FIELDS / QUAL_FIELDS) and
+// rendered from it, so adding a field means editing one list.
 
 import { DATA, ROUTE, ROUTE_PARAM, CURRENT_USER } from '../state.js';
 import { t } from '../i18n/i18n.js';
@@ -50,8 +50,8 @@ function isNewMode() {
 }
 
 // A complete, empty record matching the JSON schema in CLAUDE.md. Every cert key
-// and every drug-test field is present even when this team never uses it — the
-// shape is constant, only what the form shows varies by team.
+// is present even when this team never uses it — the shape is constant, only
+// what the form shows varies by team.
 function blankEmployee(team) {
   const certificates = {};
   ALL_CERT_KEYS.forEach((k) => { certificates[k] = { expiry_date: '', file_link: '', na: false, suspended: false }; });
@@ -73,7 +73,6 @@ function blankEmployee(team) {
     },
     certificates,
     qualifications: { nebosh_igc: false, iso_45001: false, osha: false },
-    drug_tests: { rdt_1: '', rdt_2: '', rdt: '' },
   };
 }
 
@@ -96,7 +95,6 @@ function draftFromEmployee(emp) {
     personal: { ...emp.personal },
     certificates,
     qualifications: { ...emp.qualifications },
-    drug_tests: { ...emp.drug_tests },
   };
 }
 
@@ -156,16 +154,6 @@ const QUAL_FIELDS = [
   { path: 'qualifications.iso_45001', labelKey: 'qual_iso' },
   { path: 'qualifications.osha', labelKey: 'qual_osha' },
 ];
-
-// Field team records two rapid drug tests; safety team records one.
-function drugFields(team) {
-  return team === 'field'
-    ? [
-        { path: 'drug_tests.rdt_1', labelKey: 'dt_rdt1', type: 'date' },
-        { path: 'drug_tests.rdt_2', labelKey: 'dt_rdt2', type: 'date' },
-      ]
-    : [{ path: 'drug_tests.rdt', labelKey: 'dt_rdt', type: 'date' }];
-}
 
 // ── input renderers ─────────────────────────────────────────────────────────
 
@@ -302,14 +290,7 @@ export function renderEmployeeFormPage() {
       </div>
     </div>
 
-    ${qualsHtml}
-
-    <div class="section-head">${t('section_drug')}</div>
-    <div class="card">
-      <div class="detail-grid">
-        ${drugFields(team).map((f) => inputHtml(f, team)).join('')}
-      </div>
-    </div>`;
+    ${qualsHtml}`;
 }
 
 // ── validation ──────────────────────────────────────────────────────────────

@@ -1191,6 +1191,9 @@ Build the preview modal UI inside settingsPage.js (Data file tab, Import from Ex
 - [ ] Cancel → no changes made to DATA
 
 ---
+## Stage 8.5 — RDT Feature
+See BUILD.rdt.md for the full three-step build guide. Prerequisites: Stages 0–8 complete.
+----
 
 ## Stage 9 — Officer app
 

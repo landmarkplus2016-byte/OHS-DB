@@ -484,7 +484,8 @@ function openImportPreviewModal(preview, warnings) {
         </thead>
         <tbody>${preview.rows.map(previewRowHtml).join('')}</tbody>
       </table>
-    </div>`;
+    </div>
+    <p class="hint import-rdt-note">${t('import_rdt_ignored_note')}</p>`;
 
   const foot = `
     <button class="btn btn-ghost btn-sm" data-modal-action="cancel">${t('cancel')}</button>

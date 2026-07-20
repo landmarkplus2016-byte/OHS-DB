@@ -44,6 +44,15 @@ export function makeBootstrapData() {
         max_stale_days: 30,
         last_published_at: '',
       },
+      rdt: {
+        enabled: true,
+        fiscal_year_start_month: 4,
+        monthly_target_pct: 10,
+        yearly_target_pct: 120,
+        hire_grace_months: 3,
+        repeat_months: [2, 3],
+        next_log_number: 1,
+      },
       field_options: {
         field_titles: [...DEFAULT_FIELD_OPTIONS.field_titles],
         safety_titles: [...DEFAULT_FIELD_OPTIONS.safety_titles],

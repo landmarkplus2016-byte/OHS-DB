@@ -20,6 +20,8 @@ import {
   teamBadgeHtml,
   legalPermissionBadgeHtml,
   qualificationBadgeHtml,
+  rdtStatusBadgeHtml,
+  rdtResultBadgeHtml,
 } from '../components/badge.js';
 import { fmtDate, escapeHtml, daysUntil } from '../utils/format.js';
 import { openModal } from '../components/modal.js';
@@ -121,14 +123,39 @@ function certRowHtml(emp, key, state) {
   </div>`;
 }
 
-// Field team records two rapid drug tests; safety team records one.
-function drugTestsHtml(emp) {
-  const dt = emp.drug_tests || {};
-  if (emp.team === 'field') {
-    return fieldDispHtml('dt_rdt1', dt.rdt_1 ? fmtDate(dt.rdt_1) : '')
-      + fieldDispHtml('dt_rdt2', dt.rdt_2 ? fmtDate(dt.rdt_2) : '');
-  }
-  return fieldDispHtml('dt_rdt', dt.rdt ? fmtDate(dt.rdt) : '');
+// Read-only RDT log for this employee, newest selection first. Actions (mark
+// completed, swap, etc.) live on the RDT page — this is a history view only.
+function rdtHistoryHtml(emp) {
+  const log = Array.isArray(emp.rdt_log) ? emp.rdt_log : [];
+  const rows = log
+    .slice()
+    .sort((a, b) => String(b.selected_at || '').localeCompare(String(a.selected_at || '')));
+
+  const body = rows.length
+    ? `<table class="tbl">
+        <thead>
+          <tr>
+            <th>${t('rdt_col_selected_at')}</th>
+            <th>${t('rdt_test_date')}</th>
+            <th>${t('rdt_filter_status')}</th>
+            <th>${t('rdt_result')}</th>
+            <th>${t('rdt_notes')}</th>
+          </tr>
+        </thead>
+        <tbody>${rows.map((e) => `
+          <tr>
+            <td>${fmtDate(e.selected_at)}</td>
+            <td>${e.test_date ? fmtDate(e.test_date) : '—'}</td>
+            <td>${rdtStatusBadgeHtml(e.status)}</td>
+            <td>${e.status === 'completed' ? (rdtResultBadgeHtml(e.result) || '—') : '—'}</td>
+            <td class="rdt-notes-cell">${escapeHtml(e.notes || '')}</td>
+          </tr>`).join('')}</tbody>
+      </table>`
+    : `<div class="chart-empty">${t('rdt_history_empty')}</div>`;
+
+  return `
+    <div class="section-head">${t('rdt_history_section')}</div>
+    <div class="card">${body}</div>`;
 }
 
 // Append-only renewal log, newest first. Rendered only when non-empty.
@@ -225,10 +252,7 @@ export function renderEmployeeDetailPage() {
 
     ${qualsHtml}
 
-    <div class="section-head">${t('section_drug')}</div>
-    <div class="card">
-      <div class="detail-grid">${drugTestsHtml(emp)}</div>
-    </div>
+    ${rdtHistoryHtml(emp)}
 
     ${renewalHistoryHtml(emp)}`;
 }

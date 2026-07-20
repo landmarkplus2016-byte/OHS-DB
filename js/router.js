@@ -50,6 +50,12 @@ function parseHash() {
     return { route: a, param: null };
   }
 
+  // RDT dashboard with a '/history' sub-route.
+  if (a === 'rdt') {
+    if (b === 'history') return { route: 'rdt/history', param: null };
+    return { route: 'rdt', param: null };
+  }
+
   // Single-segment routes: login, dashboard, renewals, export, settings.
   return { route: a, param: b || null };
 }

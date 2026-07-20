@@ -289,6 +289,7 @@ export const en = {
   reason_unknown_sub: 'Subcontractor "{value}" is not in your list',
   reason_unknown_title: 'Title "{value}" is not in your list',
   confirm_import: 'Confirm import',
+  import_rdt_ignored_note: 'Legacy RDT date columns in this file were ignored — use the RDT page to record new tests.',
   import_warnings: 'Warnings ({n})',
   toast_import_done: 'Imported — {added} added, {updated} updated',
   toast_import_none: 'Nothing to import — every row was set to Skip.',
@@ -355,4 +356,92 @@ export const en = {
   sync_err_server: 'The sync server returned an unexpected response. Contact your admin.',
   sync_err_no_url: 'No sync URL configured. Ask your admin for the link.',
   sync_err_no_site_check: 'This account is not allowed to run site checks.',
+
+  // ---------- RDT (random drug testing) ----------
+  nav_rdt: 'RDT',
+
+  rdt_page_title: 'Random Drug Testing',
+  rdt_page_sub: 'Monthly selection and yearly compliance tracking',
+  rdt_history_title: 'RDT history',
+
+  rdt_enable_prompt: 'RDT tracking is not yet configured for this dataset.',
+  rdt_enable_button: 'Enable RDT feature',
+
+  rdt_fiscal_year: 'Fiscal year {label}',
+  rdt_pool_size: 'Eligible employees',
+  rdt_yearly_target: 'Yearly target',
+  rdt_completed: 'Completed',
+  rdt_unique_tested: 'Unique employees tested',
+  rdt_coverage: 'Coverage',
+  rdt_target_progress: 'Target progress',
+
+  rdt_this_month: "This month's selection",
+  rdt_month_phase_normal: 'First-time tests (Apr–Jan phase)',
+  rdt_month_phase_repeat: 'Repeat tests (Feb/Mar phase)',
+  rdt_generate: 'Generate this month',
+  rdt_regenerate: 'Regenerate this month',
+  rdt_no_selection: 'No selection generated yet for this month.',
+  rdt_quota_line: '{quota} of {pool} eligible ({pct}%)',
+  rdt_no_eligible: 'No eligible employees remain for this phase.',
+  rdt_confirm_regenerate: "Regenerate this month's list? Existing selections not yet completed will be discarded.",
+
+  rdt_mark_completed: 'Mark completed',
+  rdt_mark_missed: 'Mark missed',
+  rdt_swap: 'Swap',
+  rdt_edit: 'Edit',
+  rdt_delete: 'Delete',
+
+  rdt_complete_title: 'Mark RDT completed',
+  rdt_test_date: 'Test date',
+  rdt_result: 'Result',
+  rdt_result_pass: 'Pass',
+  rdt_result_fail: 'Fail',
+  rdt_notes: 'Notes',
+
+  rdt_miss_title: 'Mark RDT missed',
+  rdt_miss_reason: 'Reason (leave, refusal, no-show, etc.)',
+
+  rdt_swap_confirm: 'Swap {name} for a random replacement?',
+  rdt_swap_no_replacement: 'No replacement available in the current eligible pool.',
+  rdt_swap_done: '{oldName} swapped for {newName}',
+
+  rdt_delete_confirm: 'Delete this RDT entry? This cannot be undone.',
+
+  rdt_status_selected: 'Selected',
+  rdt_status_completed: 'Completed',
+  rdt_status_missed: 'Missed',
+
+  rdt_filter_month: 'Month',
+  rdt_filter_status: 'Status',
+  rdt_filter_result: 'Result',
+  rdt_filter_team: 'Team',
+
+  rdt_history_section: 'RDT history',
+  rdt_history_empty: 'No RDT entries yet.',
+
+  col_last_rdt: 'Last RDT',
+
+  rdt_settings_title: 'RDT settings',
+  rdt_setting_fy_start: 'Fiscal year start month',
+  rdt_setting_monthly_pct: 'Monthly target %',
+  rdt_setting_yearly_pct: 'Yearly target %',
+  rdt_setting_hire_grace: 'New-hire grace (months)',
+  rdt_setting_repeat_months: 'Repeat months',
+
+  // RDT — extra keys the page needs (beyond the addendum list)
+  rdt_recent_activity: 'Recent activity',
+  rdt_view_history: 'View full history →',
+  rdt_first_round_marker: 'First round complete',
+  col_emp_id: 'ID',
+  rdt_col_selected_at: 'Selected at',
+  rdt_col_employee: 'Employee',
+  rdt_col_log_id: 'Log ID',
+  rdt_col_selected_by: 'Selected by',
+  rdt_export_history: 'Export history to Excel',
+  rdt_n_entries: '{n} entries',
+  rdt_toast_generated: '{n} employees selected for this month',
+  rdt_toast_completed: 'Test marked completed',
+  rdt_toast_missed: 'Test marked missed',
+  rdt_toast_edited: 'Entry updated',
+  rdt_toast_deleted: 'Entry deleted',
 };

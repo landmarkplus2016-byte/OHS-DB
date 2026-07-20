@@ -52,3 +52,18 @@ export function legalPermissionBadgeHtml(value) {
 export function qualificationBadgeHtml(labelKey, has) {
   return `<span class="badge ${has ? 'qual-on' : 'qual-off'}">${t(labelKey)} ${has ? '✓' : '—'}</span>`;
 }
+
+// RDT log-entry status pill: selected → amber, completed → green, missed → red.
+// Shared by the RDT page, its history view, and the employee detail page.
+export function rdtStatusBadgeHtml(status) {
+  const cls = status === 'completed' ? 'st-valid' : status === 'missed' ? 'st-expired' : 'st-soon';
+  return `<span class="badge ${cls}">${t('rdt_status_' + status)}</span>`;
+}
+
+// RDT result pill: pass → green, fail → red. Empty string for anything else
+// (an entry that is not a completed pass/fail has no result to show).
+export function rdtResultBadgeHtml(result) {
+  if (result !== 'pass' && result !== 'fail') return '';
+  const cls = result === 'pass' ? 'st-valid' : 'st-expired';
+  return `<span class="badge ${cls}">${t('rdt_result_' + result)}</span>`;
+}
