@@ -118,8 +118,9 @@ export function renderEmployeeListPage(team) {
     const c = compOf(e);
     const archived = !!p.archived;
     const resigned = p.employment_status === 'Resigned';
+    const suspended = p.employment_status === 'Suspended';
     return `
-      <tr class="row-clickable${archived ? ' row-archived' : ''}${resigned ? ' row-resigned' : ''}" data-row-emp="${e.employee_id}">
+      <tr class="row-clickable${archived ? ' row-archived' : ''}${resigned ? ' row-resigned' : ''}${suspended ? ' row-suspended' : ''}" data-row-emp="${e.employee_id}">
         <td>
           <b>${escapeHtml(e.name)}</b><br>
           <span class="emp-id-sub">${e.employee_id}${archived ? ' · ' + t('archived_label') : ''}</span>

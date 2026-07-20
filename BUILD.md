@@ -361,7 +361,46 @@ js/utils/exportHelpers.js:
 
 ## Stage 2 — Data + Auth Layer
 
-**Goal:** Data can be loaded from JSON. Admin can log in. Session lives in memory only. Logout clears it.
+**Goal:** Data can be loaded from JSON. Admin data auto-persists to a local IndexedDB cache so reloads don't lose the working set. Admin can log in. Session lives in memory only and clears on refresh; DATA does not.
+
+---
+
+### Step 2.0 — Admin cache (IndexedDB)
+
+**Prompt:**
+```
+Read CLAUDE.md, specifically Rule 3 and "Admin cache — exact semantics".
+Build js/data/adminCache.js.
+
+The cache lives in an IndexedDB database named 'ohs-admin', object store 'kv' (keyPath 'key').
+The single canonical key is 'data' — its value is the full serialized DATA object
+(meta + users + employees).
+
+Exports:
+  - openAdminDb() → Promise<IDBDatabase>
+  - adminCacheGet(key) → Promise<value | null>
+  - adminCacheSet(key, value) → Promise<void>  (best-effort — never throws to callers)
+  - adminCacheClear() → Promise<void>  (deletes all keys in the store)
+  - scheduleAutosave() — debounced ~500ms; on fire, reads current DATA from state.js
+    and writes to adminCacheSet('data', DATA). Best-effort — swallow errors, console.warn.
+  - restoreAdminCache() — reads 'data' from IndexedDB; if present, setData(cached) in state.js
+    and returns true. If absent or on error, returns false and DATA remains the bootstrap object.
+
+Do NOT persist CURRENT_USER, session tokens, or anything auth-related in this cache.
+Only DATA.
+
+Best-effort semantics: every write and read swallows errors and logs to console.warn.
+The cache is a convenience layer, never authoritative. If IndexedDB is unavailable
+(private mode, disabled, storage quota), the app must continue to function using
+in-memory DATA + the manual JSON upload flow.
+```
+
+**Tests for Step 2.0:**
+- [ ] `adminCacheSet('data', {test:1})` then reload page → `adminCacheGet('data')` returns `{test:1}`
+- [ ] `restoreAdminCache()` with no prior data → returns false, DATA still the bootstrap object
+- [ ] `restoreAdminCache()` with prior data → returns true, DATA replaced
+- [ ] `adminCacheClear()` empties the store
+- [ ] Simulating IndexedDB failure (override `indexedDB` to throw) → no thrown errors, app still boots
 
 ---
 
@@ -403,9 +442,14 @@ js/state.js — the single source of truth for all in-memory admin app state:
   - export function clearDirty() { IS_DIRTY = false }
   - Keep this file free of business logic — it only holds and mutates state
 
-js/data/dataActions.js — all mutations to DATA go through these functions:
+js/data/dataActions.js — all mutations to DATA go through these functions.
+Every function below ends with a call to scheduleAutosave() from adminCache.js so the
+working DATA is persisted to the ohs-admin IndexedDB cache. The autosave is best-effort
+and does not block the mutation.
+
   - loadJSON(jsonString): parse → validate shape (must have meta,users,employees) →
-    setData → clearDirty → return { ok, error }
+    setData → clearDirty → scheduleAutosave() → return { ok, error }
+    (This overwrites the local cache with the uploaded file — the upload always wins.)
   - exportJSON(currentUser):
     - build export object: spread DATA, override meta.exported_at (now ISO) and meta.exported_by
     - trigger file download as `ohs-data-YYYY-MM-DD.json` via Blob + <a download>
@@ -437,11 +481,14 @@ js/data/dataActions.js — all mutations to DATA go through these functions:
   - publishFieldSnapshot():
     - build stripped snapshot: { meta: {warning_thresholds, field_sync_max_stale_days: DATA.meta.field_sync.max_stale_days, published_at: now}, users: DATA.users.filter(u => u.role==='officer' && u.active && u.can_do_site_check).map(strip password? — NO, Apps Script needs the password to validate), employees: employees stripped of renewal_history and certificates.*.file_link, archived employees excluded }
     - trigger file download as `ohs-field-snapshot.json`
-    - update DATA.meta.field_sync.last_published_at
+    - update DATA.meta.field_sync.last_published_at, scheduleAutosave()
     - markDirty() only if last_published_at wasn't already now
     - IMPORTANT: users in the snapshot are kept but ONLY officers with active + can_do_site_check
       because the Apps Script needs them to validate logins. Do NOT strip passwords —
       Apps Script needs plaintext-match against them. This is intentional and documented in CLAUDE.md.
+
+Every other mutating action (addEmployee, updateEmployee, archiveEmployee, unarchiveEmployee,
+deleteEmployee, saveUsers, updateMeta) MUST call scheduleAutosave() as its last step.
 ```
 
 **Tests for Step 2.1:**
@@ -455,6 +502,8 @@ js/data/dataActions.js — all mutations to DATA go through these functions:
 - [ ] `exportJSON` triggers a file download and updates `meta.last_backup_at`
 - [ ] Re-uploading exported JSON: all data intact, no data loss
 - [ ] `publishFieldSnapshot` triggers a download of a file with `renewal_history` removed and `file_link` stripped from all certificate objects; archived employees not included
+- [ ] After `addEmployee` → reload page → run `adminCacheGet('data')` → new employee is present in the cached DATA
+- [ ] After `loadJSON` with a fresh file → reload → cached DATA matches the uploaded file exactly (upload wins)
 
 ---
 
@@ -530,7 +579,23 @@ For Stage 3, use one-line placeholder page functions:
   function pageDashboard() { return '<div class="content">Dashboard placeholder</div>'; }
   ...etc. for every route in CLAUDE.md's Routes table.
 
-Wire main.js properly: on DOMContentLoaded, initRouter() then render().
+Wire main.js properly. The boot sequence is async because both caches must be
+hydrated BEFORE the first paint so the login page can show the correct state
+("restored from this device" banner, or the empty-upload prompt):
+
+  import { restoreAdminCache } from './data/adminCache.js';
+  import { bootstrapOfficerSession } from './data/officerSync.js';
+  // ...
+  document.addEventListener('DOMContentLoaded', async () => {
+    try { await restoreAdminCache(); } catch(e) { console.warn('admin cache restore failed', e); }
+    try { await bootstrapOfficerSession(); } catch(e) { console.warn('officer session restore failed', e); }
+    initRouter();
+    render();
+  });
+
+Both restore calls are best-effort — a failure never blocks the app from booting.
+The admin restore populates DATA if a cache exists on this device; the officer restore
+populates OFFICER_STATE if a session was previously synced on this device.
 ```
 
 **Tests for Step 3.1:**
@@ -538,7 +603,8 @@ Wire main.js properly: on DOMContentLoaded, initRouter() then render().
 - [ ] After login → dashboard placeholder shows in admin shell
 - [ ] Navigate via `location.hash = '#/field'` → field placeholder shows
 - [ ] Browser back/forward buttons trigger re-render
-- [ ] Refreshing any admin route redirects to login (no session in memory)
+- [ ] Refreshing any admin route redirects to login (CURRENT_USER cleared, session never persists)
+- [ ] After login + refresh: DATA is still populated from adminCache (not the empty bootstrap) — login page shows the "restored from this device" state, not the initial-upload prompt
 - [ ] Visiting `#/check` without login → officer login placeholder shows (mobile shell)
 - [ ] Admin logged in visiting `#/check/home` → redirected to `#/dashboard`
 
@@ -653,33 +719,58 @@ All components render correctly in both LTR and RTL — use logical properties i
 Read CLAUDE.md. Stage 4, Step 1.
 Build js/pages/loginPage.js. Reference the login card in design/ohs_admin_prototype.html.
 
+The login page has three visual states depending on whether the ohs-admin IndexedDB
+cache had data at boot (see main.js restoreAdminCache call) and whether the admin has
+just uploaded a fresh file:
+
+  STATE A — Empty (no cache restored, still bootstrap):
+    DATA.employees.length === 0 AND DATA.users.length === 1 (bootstrap only)
+    Show: upload prompt + file input + bootstrap-only sign-in
+
+  STATE B — Restored from this device (cache hit at boot):
+    DATA has real employees/users AND no explicit upload has happened this session
+    Show: small green banner "✓ Data restored from this device — last edited [date]"
+          + "Forget on this device" button (adminCacheClear() + reload)
+          + "Upload a different file" affordance (re-opens the file input)
+          + normal sign-in form
+
+  STATE C — Explicitly re-uploaded this session:
+    Any time the admin picks a new file and loadJSON succeeds
+    Show: green banner "✓ File loaded" + normal sign-in form
+
+Add i18n keys as needed: restored_from_device, restored_at, forget_on_this_device,
+upload_different, file_loaded, confirm_forget, forget_warning.
+
 export function renderLoginPage():
   - Centered card: 'OHS' logo mark, app_name, app_sub
   - Language toggle (works without login)
-  - JSON upload section — shown when DATA.employees.length === 0 AND DATA.users.length === 1 (bootstrap only)
-    - Upload prompt text, <input type="file" accept=".json">
-    - On file pick: FileReader.readAsText → loadJSON() → on success show green "Data loaded" confirmation
-    - On error: red error text
-  - When data IS loaded: show a small green banner "✓ Data loaded" with a "Re-upload" button that clears data
+  - The three-state banner logic above
   - Username input, password input, sign-in button
   - Below the form: small text linking to the officer app URL for officers who visited by mistake:
     "Safety officers: go to [same domain]/#/check"
 
 export function bindLoginPageEvents():
   - Language toggle buttons → setLanguage()
-  - File input → FileReader → loadJSON()
+  - File input → FileReader → loadJSON() → on success switch to STATE C, on error show inline red text
+  - "Forget on this device" button → confirmation modal explaining that unsaved
+    local edits will be lost unless already exported to Drive → on confirm,
+    adminCacheClear() → location.reload()
+  - "Upload a different file" button → re-opens the file input (same handler)
   - Sign in button → login(username, password) → on success go('dashboard'), on error show inline error
 ```
 
 **Tests for Step 4.1:**
-- [ ] JSON upload area appears on first load (no data yet)
+- [ ] First-ever load on a device: STATE A — JSON upload area appears
 - [ ] Uploading invalid JSON → red error message
-- [ ] Uploading valid JSON → green confirmation, upload area collapses
+- [ ] Uploading valid JSON → STATE C green "File loaded" banner
 - [ ] Login with bootstrap admin (admin/admin123) → navigates to dashboard
 - [ ] Login with wrong credentials → red error under form
 - [ ] Login with an inactive user → deactivated error
 - [ ] Login attempt with an officer account → "admin-only" error message
 - [ ] Language toggle works on login page (before login)
+- [ ] After a successful upload + login + edit + refresh: STATE B shown — green "Data restored from this device" banner, no upload prompt, sign-in form visible
+- [ ] "Forget on this device" → confirmation modal → confirm → cache cleared, page reloads to STATE A
+- [ ] "Upload a different file" from STATE B → file picker opens → new upload replaces cached DATA
 
 ---
 
@@ -1449,8 +1540,19 @@ Complete every item before going live. Do not skip.
 - [ ] Wrong password → clear error message
 - [ ] Inactive user → clear error message
 - [ ] Officer attempting admin login → clear "admin-only" error
-- [ ] Page refresh → session cleared, redirected to login
-- [ ] Logout → session cleared
+- [ ] Page refresh → session cleared (must re-login) but DATA restored from adminCache — login page shows STATE B banner, not the upload prompt
+- [ ] Logout → session cleared, but adminCache NOT cleared (login page still shows STATE B)
+- [ ] "Forget on this device" from login page → confirmation → adminCache cleared → page reloads to STATE A
+
+**Admin local cache (ohs-admin IndexedDB):**
+- [ ] First load on a device: no cache, STATE A shown
+- [ ] After uploading JSON: cache populated with the exact uploaded contents
+- [ ] After adding/editing employees: cache reflects every mutation within ~1s (debounced autosave)
+- [ ] Reloading with cache present: DATA restored, no re-upload needed, sign-in still required
+- [ ] Uploading a fresh JSON while a cache exists: uploaded file overwrites the cache (upload always wins)
+- [ ] Cache never contains CURRENT_USER or any session marker (inspect via DevTools → Application → IndexedDB → ohs-admin → kv)
+- [ ] IS_DIRTY is NOT cleared by autosave — only Export JSON clears it (autosave to local cache is not the same as saving to Drive)
+- [ ] Private/incognito mode where IndexedDB is unavailable: app still boots and functions with pure in-memory DATA + upload flow
 
 **Admin JSON data flow:**
 - [ ] Upload JSON → all employees + users load correctly

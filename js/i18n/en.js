@@ -152,6 +152,7 @@ export const en = {
   st_na: 'N/A',
   cert_na_label: 'Not needed (N/A)',
   cert_na_note: 'Not needed for this employee',
+  cert_suspended_label: 'Suspended course',
   days_left: 'days left',
   days_ago: 'days ago',
 

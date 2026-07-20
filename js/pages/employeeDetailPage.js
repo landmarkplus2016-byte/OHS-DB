@@ -109,7 +109,7 @@ function certRowHtml(emp, key, state) {
     ? `<button class="btn btn-ghost btn-sm" data-action="view-cert" data-cert="${escapeHtml(key)}">${t('open_cert')}</button>`
     : '';
 
-  return `<div class="cert-row">
+  return `<div class="cert-row${cert.suspended ? ' cert-row-suspended' : ''}">
     <div class="cert-info">
       <div class="name">${t(CERT_LABEL_KEYS[key])}</div>
       <div class="date">${fmtDate(cert.expiry_date)}${rel}</div>

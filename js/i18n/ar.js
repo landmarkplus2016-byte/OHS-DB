@@ -151,6 +151,7 @@ export const ar = {
   st_na: 'غير مطلوبة',
   cert_na_label: 'غير مطلوبة لهذا الموظف',
   cert_na_note: 'غير مطلوبة لهذا الموظف',
+  cert_suspended_label: 'دورة موقوفة',
   days_left: 'يوم متبقي',
   days_ago: 'يوم مضى',
 

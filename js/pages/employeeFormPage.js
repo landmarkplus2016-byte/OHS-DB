@@ -54,7 +54,7 @@ function isNewMode() {
 // shape is constant, only what the form shows varies by team.
 function blankEmployee(team) {
   const certificates = {};
-  ALL_CERT_KEYS.forEach((k) => { certificates[k] = { expiry_date: '', file_link: '', na: false }; });
+  ALL_CERT_KEYS.forEach((k) => { certificates[k] = { expiry_date: '', file_link: '', na: false, suspended: false }; });
 
   return {
     national_id: '',
@@ -86,7 +86,7 @@ function draftFromEmployee(emp) {
   const certificates = {};
   ALL_CERT_KEYS.forEach((k) => {
     const c = (emp.certificates && emp.certificates[k]) || {};
-    certificates[k] = { expiry_date: c.expiry_date || '', file_link: c.file_link || '', na: !!c.na };
+    certificates[k] = { expiry_date: c.expiry_date || '', file_link: c.file_link || '', na: !!c.na, suspended: !!c.suspended };
   });
 
   return {
@@ -215,8 +215,10 @@ function inputHtml(field, team) {
 function certBlockHtml(key) {
   const c = formDraft.certificates[key] || {};
   const na = !!c.na;
+  const suspended = !!c.suspended;
   const dis = na ? ' disabled' : '';
-  return `<div class="cert-edit${na ? ' cert-edit-na' : ''}" data-cert-block="${key}">
+  const cls = `cert-edit${na ? ' cert-edit-na' : ''}${suspended ? ' cert-edit-suspended' : ''}`;
+  return `<div class="${cls}" data-cert-block="${key}">
     <div class="cert-edit-name">${t(CERT_LABEL_KEYS[key])}</div>
     <div class="field">
       <label>${t('expiry_date')}</label>
@@ -230,6 +232,10 @@ function certBlockHtml(key) {
     <label class="check cert-na-check">
       <input type="checkbox" data-path="certificates.${key}.na" data-cert-na="${key}"${na ? ' checked' : ''}>
       ${t('cert_na_label')}
+    </label>
+    <label class="check cert-suspended-check">
+      <input type="checkbox" data-path="certificates.${key}.suspended" data-cert-suspended="${key}"${suspended ? ' checked' : ''}>
+      ${t('cert_suspended_label')}
     </label>
   </div>`;
 }
@@ -425,6 +431,16 @@ export function bindEmployeeFormPageEvents() {
       block.querySelectorAll('input[type="date"], input[type="text"]').forEach((inp) => {
         inp.disabled = cb.checked;
       });
+    });
+  });
+
+  // "Suspended course" checkboxes: purely visual — the generic listener writes
+  // the flag into the draft; here we tint the whole block yellow live, mirroring
+  // the N/A colouring but without disabling the date/link inputs.
+  document.querySelectorAll('[data-cert-suspended]').forEach((cb) => {
+    cb.addEventListener('change', () => {
+      const block = document.querySelector(`[data-cert-block="${cb.dataset.certSuspended}"]`);
+      if (block) block.classList.toggle('cert-edit-suspended', cb.checked);
     });
   });
 

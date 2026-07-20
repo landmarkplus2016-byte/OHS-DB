@@ -176,6 +176,9 @@
 /* Resigned employees are flagged with a red row on the team list pages. */
 .tbl tr.row-resigned td { background: var(--blocked-bg); }
 .tbl tr.row-resigned:hover td { background: color-mix(in srgb, var(--blocked-bg) 92%, var(--text)); }
+/* Suspended employees are flagged with a yellow row on the team list pages. */
+.tbl tr.row-suspended td { background: var(--plan-bg); }
+.tbl tr.row-suspended:hover td { background: color-mix(in srgb, var(--plan-bg) 92%, var(--text)); }
 .row-actions { white-space: nowrap; }
 .row-actions .btn { margin-inline-end: 4px; }
 
@@ -321,8 +324,23 @@
 .cert-edit-na .field { opacity: .55; }
 .cert-edit-na .cert-na-check { opacity: 1; color: var(--na-tx); font-weight: 600; }
 
+/* "Suspended course" checkbox under each cert, and the yellow state it drives. */
+.cert-suspended-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text2);
+  margin-top: 8px;
+  cursor: pointer;
+}
+.cert-edit-suspended { background: var(--plan-bg); border-color: var(--plan-bg); }
+.cert-edit-suspended .cert-suspended-check { color: var(--plan-tx); font-weight: 600; }
+
 /* N/A cert row on the detail page reads muted, like the "not needed" note. */
 .cert-row-na { background: var(--na-bg); border-color: var(--na-bg); }
+/* Suspended-course cert row on the detail page reads yellow. */
+.cert-row-suspended { background: var(--plan-bg); border-color: var(--plan-bg); }
 
 .qual-checks { display: flex; gap: 20px; flex-wrap: wrap; }
 .qual-checks .check { display: flex; align-items: center; gap: 6px; font-size: 13px; }

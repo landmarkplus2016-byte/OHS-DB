@@ -41,7 +41,9 @@ GitHub Pages serves the repo directly — no build/deploy script, no `gh-pages` 
 
 1. **No backend calls at runtime from the admin app** — the desktop app is 100% offline after load (except loading the CDN script tags for SheetJS/jsPDF, which only happens once on page load). The officer app is the one exception: it POSTs to a single Google Apps Script endpoint for login + data fetch, then works offline from IndexedDB cache
 2. **No npm, no build step, ever** — if a feature seems to require installing a package, find a CDN `<script>` tag alternative or write it in plain JS instead
-3. **No localStorage for employee data** — all employee data lives in JS variables (in-memory state) only. localStorage is only used for UI display preferences: language (`ohs_lang`) and accent theme (`ohs_theme`). The officer app's IndexedDB cache of the field snapshot is the one sanctioned exception (it stores the last-synced JSON so officers can work offline), and it must respect the fail-closed staleness lockout
+3. **No localStorage for employee data** — all employee data lives in JS variables (in-memory `DATA`), backed by the two IndexedDB caches described below. localStorage is only used for UI display preferences: language (`ohs_lang`) and accent theme (`ohs_theme`). Two IndexedDB caches are sanctioned exceptions to the "in-memory only" default:
+   - **`ohs-admin` (admin desktop app):** auto-persists the working `DATA` object (meta + users + employees, including plain-text passwords — same as the JSON file) so the admin doesn't have to re-upload the JSON on every page reload. Google Drive is still the source of truth; this cache is a device-local convenience only. It's cleared by the "Forget on this device" button on the login page, or by the user clearing browser data. Managed by `js/data/adminCache.js`. **Never assume the admin cache is authoritative** — if the admin ever explicitly re-uploads a JSON file, the uploaded file wins and overwrites the cache.
+   - **`ohs-officer` (officer mobile app):** caches the last-synced field snapshot so officers can work offline. Must respect the fail-closed staleness lockout. Managed by `js/data/officerSync.js`.
 4. **HashRouter pattern only** — routes are `#/...` fragments handled by reading `location.hash`. GitHub Pages does not support server-side routing, and hash routing needs zero configuration
 5. **Bootstrap admin is memory-only** — never written to JSON. Exists only as a hardcoded fallback when no JSON is loaded
 6. **Cannot delete last admin** — always validate before any user deletion. In practice this is a light constraint since there's only ever one admin, but the check must exist
@@ -64,26 +66,40 @@ This is a **JSON-file-driven app**, but with two distinct data flows depending o
 
 ### Flow A — Admin (desktop)
 
-Admin uses the desktop app to edit data. Sync is manual upload/download via Google Drive.
+Admin uses the desktop app to edit data. Sync is manual upload/download via Google Drive; the local `ohs-admin` IndexedDB cache handles reload convenience only.
 
 ```
-First visit: admin opens the app, uploads the current data.json from their computer
+First visit on this device: admin opens the app, uploads the current data.json from Drive
           ↓
-Data loads into memory. IS_DIRTY starts false.
+loadJSON() replaces in-memory DATA and writes it to the ohs-admin IndexedDB cache. IS_DIRTY = false.
           ↓
-Admin edits sites/employees → IS_DIRTY becomes true
+Admin edits employees / users / settings → in-memory DATA mutates,
+IS_DIRTY = true, and dataActions debounces an auto-save into the ohs-admin cache
           ↓
-Admin clicks Export → data.json downloads to their Downloads folder
+Admin clicks Export → data.json downloads to their Downloads folder → IS_DIRTY = false
           ↓
-Admin drags/uploads that file to the Google Drive folder,
-replacing the previous copy
+Admin drags/uploads that file to the Google Drive folder, replacing the previous copy
           ↓
-Page refresh → session cleared, admin re-uploads the file on next visit
+Page refresh on the same device →
+  • CURRENT_USER always cleared → admin must log in again (session never persists)
+  • DATA auto-restores from the ohs-admin IndexedDB cache → NO re-upload needed
+          ↓
+Switching devices / using a different browser / clicking "Forget on this device" on the
+login page → cache is empty, admin uploads the current data.json from Drive to seed it
 ```
 
-**No File System Access API. No mapped network drive. Nothing installed.** The Drive folder is the source of truth; the app is a temporary in-memory editor between two file uploads.
+**No File System Access API. No mapped network drive. Nothing installed.** Google Drive is still the source of truth — the local cache is only convenience for reloads on the same browser. If the admin ever uploads a JSON file, the upload wins and overwrites the cache. Sign out does NOT clear the cache; "Forget on this device" does.
 
 A one-time-ish Excel importer is also available in Settings → Data file for bulk-loading employees from a spreadsheet.
+
+### Admin cache — exact semantics
+
+- `js/data/adminCache.js` exposes `openAdminDb()`, `adminCacheGet(key)`, `adminCacheSet(key, value)`, `adminCacheClear()`, and `scheduleAutosave()` (debounced ~500ms).
+- `js/main.js` on boot: `await restoreAdminCache()` runs BEFORE `initRouter()` and `render()`. If a cached `DATA` object is present, it replaces the bootstrap `DATA` in state and the login page shows a small "Data restored from this device" banner with a "Forget on this device" button.
+- `js/data/dataActions.js` calls `scheduleAutosave()` at the end of every mutating action (`loadJSON`, `addEmployee`, `updateEmployee`, `archiveEmployee`, `unarchiveEmployee`, `deleteEmployee`, `saveUsers`, `updateMeta`, `publishFieldSnapshot`, Excel `commitImport`). The autosave is best-effort — cache-write failures never block the admin's action or surface as an error, only log.
+- The cache stores the full `DATA` including the `users` array with plain-text passwords. This is intentional and consistent with the JSON file itself. If this is ever a concern, the mitigation is "Forget on this device", not encrypting the cache — the JSON file on Drive is the security boundary.
+- `IS_DIRTY` tracks "unsaved to Drive", NOT "unsaved to local cache". Autosave into the cache does not clear `IS_DIRTY`; only `exportJSON()` does. The Export JSON button and the amber unsaved indicator remain the sole prompt for the admin to upload to Drive.
+- `CURRENT_USER` is NEVER persisted anywhere (not to the cache, not to localStorage). Every reload requires a fresh login.
 
 ### Flow B — Officer (mobile)
 
@@ -217,16 +233,16 @@ This account exists only in memory. It is never written to any JSON. Real admin 
         "archived_by": ""
       },
       "certificates": {
-        "wah_practical":   { "expiry_date": "2028-03-04", "file_link": "", "na": false },
-        "wah_theoretical": { "expiry_date": "2028-03-04", "file_link": "", "na": false },
-        "ra":  { "expiry_date": "2027-01-13", "file_link": "", "na": false },
-        "fa":  { "expiry_date": "2027-01-10", "file_link": "", "na": false },
-        "ff":  { "expiry_date": "2027-01-11", "file_link": "", "na": false },
-        "ec":  { "expiry_date": "2028-01-11", "file_link": "", "na": false },
-        "mcu": { "expiry_date": "2026-11-01", "file_link": "", "na": false },
-        "ppe_inspection": { "expiry_date": "", "file_link": "", "na": false },
-        "lifting":        { "expiry_date": "", "file_link": "", "na": false },
-        "scaffolding":    { "expiry_date": "", "file_link": "", "na": false }
+        "wah_practical":   { "expiry_date": "2028-03-04", "file_link": "" },
+        "wah_theoretical": { "expiry_date": "2028-03-04", "file_link": "" },
+        "ra":  { "expiry_date": "2027-01-13", "file_link": "" },
+        "fa":  { "expiry_date": "2027-01-10", "file_link": "" },
+        "ff":  { "expiry_date": "2027-01-11", "file_link": "" },
+        "ec":  { "expiry_date": "2028-01-11", "file_link": "" },
+        "mcu": { "expiry_date": "2026-11-01", "file_link": "" },
+        "ppe_inspection": { "expiry_date": "", "file_link": "" },
+        "lifting":        { "expiry_date": "", "file_link": "" },
+        "scaffolding":    { "expiry_date": "", "file_link": "" }
       },
       "qualifications": {
         "nebosh_igc": false,
@@ -264,7 +280,6 @@ This account exists only in memory. It is never written to any JSON. Real admin 
 - **`national_id`** — searchable, indexed by users mentally, but NOT the primary key. Egyptian national IDs are 14 digits and should not be used as URL fragments (PII).
 - **`team`** — `"field"` or `"safety"`. Discriminator that drives which certificates and qualifications apply. Cannot change after creation (change of team means archive + create new).
 - **`certificates.*.file_link`** — free-text string. Admin pastes a Google Drive share URL, a Windows path (`Z:\ohs\certs\...`), or any URL. If empty, no "Open certificate" button shows. App never validates or opens the link itself beyond passing it to `window.open()`.
-- **`certificates.*.na`** — boolean. `true` means this certificate is **not needed for this employee**. An N/A cert derives to the `na` state (never `missing`) and is excluded from the "worst" aggregate, the renewals worklist, the dashboard charts/sparklines, and the site-check verdict (it can neither block nor warn). It travels with the field snapshot so the officer app derives the same result. Absent/falsy `na` behaves exactly as before.
 - **`ppe_inspection` / `lifting` / `scaffolding`** — always present in the JSON schema, but only shown in the form/detail for `team === "safety"`. Field team employees have these fields but they stay empty forever.
 - **`qualifications.*`** — same pattern, safety team only.
 - **`drug_tests`** — field team uses `rdt_1` + `rdt_2`; safety team uses `rdt` (single). All three fields exist in every employee record but only the relevant ones are shown.
@@ -279,8 +294,7 @@ Certificate status is computed at render time by `deriveCertState(expiryDate, th
 
 | State | Condition (given today's date) | Color |
 |---|---|---|
-| `na` | `certificates.<key>.na === true` (not needed for this employee) | Slate |
-| `missing` | expiry_date is empty (and not N/A) | Gray |
+| `missing` | expiry_date is empty | Gray |
 | `expired` | expiry_date < today | Red |
 | `urgent` | expiry_date within `urgent_days` (default 30) | Orange |
 | `soon` | expiry_date within `soon_days` (default 60) | Amber |
@@ -305,7 +319,7 @@ Applicable certs depend on team:
 
 `missing` certs on applicable keys count in `worst` only when they're the ONLY state present (all valid → worst is `valid`, but valid + missing → worst is still `missing` for display honesty).
 
-State ranking (highest wins for `worst`): expired > urgent > soon > plan > missing > valid. `na` certs are skipped entirely — they never contribute to `worst`, `expiring_soon_count`, or `expired_count`.
+State ranking (highest wins for `worst`): expired > urgent > soon > plan > missing > valid.
 
 ---
 
@@ -471,7 +485,9 @@ ohs-db/
 │
 ├── js/
 │   ├── main.js                      # Entry point: imports everything, calls initRouter() then render()
-│   ├── state.js                     # In-memory app state: DATA, CURRENT_USER, ROUTE, IS_DIRTY, UI
+│   ├── state.js                     # In-memory app state: DATA (initialized to makeBootstrapData(),
+│   │                                 #   then replaced by adminCache restore or JSON upload),
+│   │                                 #   CURRENT_USER (never persisted), ROUTE, IS_DIRTY, UI
 │   ├── router.js                    # go(route, param), reads/writes location.hash, listens for hashchange
 │   ├── render.js                    # Top-level render() — picks admin shell OR officer shell based on ROUTE
 │   │
@@ -482,12 +498,18 @@ ohs-db/
 │   │
 │   ├── data/
 │   │   ├── bootstrap.js             # BOOTSTRAP_ADMIN, makeBootstrapData()
+│   │   ├── adminCache.js            # openAdminDb(), adminCacheGet(), adminCacheSet(), adminCacheClear(),
+│   │   │                             #   scheduleAutosave(), restoreAdminCache() — 'ohs-admin' IndexedDB,
+│   │   │                             #   auto-persists the working DATA object; called from main.js on boot
+│   │   │                             #   and from every mutation in dataActions.js
 │   │   ├── dataActions.js           # loadJSON(), exportJSON(), addEmployee(), updateEmployee(),
-│   │   │                             #   archiveEmployee(), deleteEmployee(), saveUsers(), updateMeta(),
-│   │   │                             #   importFromExcel(), publishFieldSnapshot()
+│   │   │                             #   archiveEmployee(), unarchiveEmployee(), deleteEmployee(),
+│   │   │                             #   saveUsers(), updateMeta(), importFromExcel(), publishFieldSnapshot()
+│   │   │                             #   — every mutation calls scheduleAutosave() from adminCache.js
 │   │   ├── auth.js                  # login(), logout()  (admin app only)
 │   │   └── officerSync.js           # officerLogin(url, u, p), officerSync(url), cacheGet(), cacheSet(),
-│   │                                 #   isCacheStale(thr) — talks to Apps Script + IndexedDB
+│   │                                 #   isCacheStale(thr), bootstrapOfficerSession() — 'ohs-officer' IndexedDB,
+│   │                                 #   called from main.js on boot to rehydrate before first paint
 │   │
 │   ├── pages/
 │   │   ├── loginPage.js             # renderLoginPage() — shows the JSON upload box when no data loaded
@@ -715,7 +737,7 @@ Use CSS logical properties everywhere for RTL support (`margin-inline-start/end`
 - Never add `package.json`, `node_modules`, or any npm dependency
 - Never introduce a bundler, transpiler, or build step of any kind
 - Never use React, Vue, or any UI framework — plain JS template-literal rendering only
-- Never persist employee data or users to localStorage (the officer's IndexedDB snapshot cache is the one sanctioned exception, and it must respect fail-closed staleness)
+- Never persist employee data or users to **localStorage** — the two sanctioned persistent stores are the `ohs-admin` and `ohs-officer` **IndexedDB** databases described in Rule 3 and the "Admin cache — exact semantics" section. Never invent a third persistent store, and never persist `CURRENT_USER` in either of them.
 - Never make a `fetch()` call from the admin app (the officer app's Apps Script call is the only external network call anywhere in this project)
 - Never hardcode any visible string in JS — always use `t('key')`
 - Never store certificate state or verdict in the JSON — always derive at render time
