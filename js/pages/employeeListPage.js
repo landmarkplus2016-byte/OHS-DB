@@ -1,6 +1,9 @@
-// employeeListPage.js — the shared Field/Safety team roster. One job: render a
-// searchable, filterable, paginated table of one team's employees and wire its
-// controls. Used by both #/field and #/safety (team is passed in).
+// employeeListPage.js — the shared employee roster. One job: render a
+// searchable, filterable, paginated table of a view's employees and wire its
+// controls. The `view` argument is 'field', 'safety', or 'separated':
+//   'field' / 'safety'  → that team, excluding Resigned/Terminated employees
+//   'separated'         → Resigned + Terminated employees across both teams
+//                         (#/separated, the "Resigned and Terminated" tab)
 //
 // Compliance is derived at render time (never stored). The list is always sliced
 // to PAGE_SIZE so innerHTML re-renders stay fast (CLAUDE.md rule 13).
@@ -21,13 +24,29 @@ function isAdmin() {
   return CURRENT_USER && CURRENT_USER.role === 'admin';
 }
 
-// Topbar title/subtitle/actions for the list route. The subtitle counts the
-// team's non-archived employees; the action is the admin-only add button.
-export function employeeListTopbar(team) {
-  const count = DATA.employees.filter((e) => e.team === team && !(e.personal && e.personal.archived)).length;
-  const title = team === 'field' ? t('nav_field') : t('nav_safety');
+// Resigned or Terminated employees live in their own "Resigned and Terminated"
+// tab and are excluded from the Field/Safety rosters.
+function isSeparated(emp) {
+  const s = emp.personal && emp.personal.employment_status;
+  return s === 'Resigned' || s === 'Terminated';
+}
+
+// Topbar title/subtitle/actions for a list route. `view` is 'field', 'safety',
+// or 'separated'. The subtitle counts the view's non-archived employees; the add
+// button is admin-only and never shown on the separated (read-only roster) view.
+export function employeeListTopbar(view) {
+  if (view === 'separated') {
+    const count = DATA.employees.filter(
+      (e) => isSeparated(e) && !(e.personal && e.personal.archived)
+    ).length;
+    return { title: t('nav_separated'), sub: t('n_employees', { n: count }), actions: '' };
+  }
+  const count = DATA.employees.filter(
+    (e) => e.team === view && !isSeparated(e) && !(e.personal && e.personal.archived)
+  ).length;
+  const title = view === 'field' ? t('nav_field') : t('nav_safety');
   const actions = isAdmin()
-    ? `<button class="btn btn-primary btn-sm" data-action="add-employee" data-team="${team}">+ ${t('add_employee')}</button>`
+    ? `<button class="btn btn-primary btn-sm" data-action="add-employee" data-team="${view}">+ ${t('add_employee')}</button>`
     : '';
   return { title, sub: t('n_employees', { n: count }), actions };
 }
@@ -55,7 +74,9 @@ function rowActionsHtml(emp) {
   return html;
 }
 
-export function renderEmployeeListPage(team) {
+export function renderEmployeeListPage(view) {
+  const isSep = view === 'separated';
+  const showQuals = view === 'safety';
   const thr = DATA.meta.warning_thresholds;
   const showArchived = !!UI.showArchived;
   const search = (UI.search || '').toLowerCase();
@@ -63,10 +84,13 @@ export function renderEmployeeListPage(team) {
   const titleFilter = UI.titleFilter || 'all';
   const subFilter = UI.subFilter || 'all';
 
-  // Base set: this team, archived excluded unless the toggle is on.
-  const base = DATA.employees.filter(
-    (e) => e.team === team && (showArchived || !(e.personal && e.personal.archived))
-  );
+  // Base set. The Field/Safety rosters exclude Resigned/Terminated employees —
+  // those live in the separate "Resigned and Terminated" tab, which collects them
+  // across both teams. Archived are excluded unless the toggle is on.
+  const base = DATA.employees.filter((e) => {
+    if (!showArchived && e.personal && e.personal.archived) return false;
+    return isSep ? isSeparated(e) : (e.team === view && !isSeparated(e));
+  });
 
   // Compliance is computed at most once per employee and reused for filter + row.
   const compCache = new Map();
@@ -106,9 +130,11 @@ export function renderEmployeeListPage(team) {
   const page = Math.min(Math.max(UI.page || 1, 1), totalPages);
   const pageRows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const titles = getFieldOptions(team === 'field' ? 'field_titles' : 'safety_titles');
+  const titles = isSep
+    ? Array.from(new Set([...getFieldOptions('field_titles'), ...getFieldOptions('safety_titles')]))
+    : getFieldOptions(view === 'field' ? 'field_titles' : 'safety_titles');
   const subs = getFieldOptions('subcontractors');
-  const colCount = team === 'safety' ? 8 : 7;
+  const colCount = showQuals ? 8 : 7;
 
   const optionsHtml = (list, current) =>
     list.map((x) => `<option value="${escapeHtml(x)}"${current === x ? ' selected' : ''}>${escapeHtml(x)}</option>`).join('');
@@ -117,19 +143,23 @@ export function renderEmployeeListPage(team) {
     const p = e.personal || {};
     const c = compOf(e);
     const archived = !!p.archived;
-    const resigned = p.employment_status === 'Resigned';
-    const suspended = p.employment_status === 'Suspended';
+    const status = p.employment_status;
+    const resigned = status === 'Resigned';
+    const terminated = status === 'Terminated';
+    const suspended = status === 'Suspended';
+    // In the separated tab, note which status put them here, next to the id.
+    const statusSub = isSep && status ? ' · ' + escapeHtml(status) : '';
     return `
-      <tr class="row-clickable${archived ? ' row-archived' : ''}${resigned ? ' row-resigned' : ''}${suspended ? ' row-suspended' : ''}" data-row-emp="${e.employee_id}">
+      <tr class="row-clickable${archived ? ' row-archived' : ''}${resigned ? ' row-resigned' : ''}${terminated ? ' row-terminated' : ''}${suspended ? ' row-suspended' : ''}" data-row-emp="${e.employee_id}">
         <td>
           <b>${escapeHtml(e.name)}</b><br>
-          <span class="emp-id-sub">${e.employee_id}${archived ? ' · ' + t('archived_label') : ''}</span>
+          <span class="emp-id-sub">${e.employee_id}${archived ? ' · ' + t('archived_label') : ''}${statusSub}</span>
         </td>
         <td class="natid-cell">${escapeHtml(e.national_id)}</td>
         <td>${escapeHtml(p.title)}</td>
         <td>${escapeHtml(p.subcontractor)}</td>
         <td>${complianceBadgeHtml(c.worst)}${c.expired_count ? `<span class="expired-note">${t('n_expired', { n: c.expired_count })}</span>` : ''}</td>
-        ${team === 'safety' ? `<td>${qualsCellHtml(e)}</td>` : ''}
+        ${showQuals ? `<td>${qualsCellHtml(e)}</td>` : ''}
         <td>${fmtDate(e.meta && e.meta.updated_at)}</td>
         <td class="row-actions">${rowActionsHtml(e)}</td>
       </tr>`;
@@ -183,7 +213,7 @@ export function renderEmployeeListPage(team) {
           <th>${t('col_title')}</th>
           <th>${t('col_sub')}</th>
           <th>${t('col_state')}</th>
-          ${team === 'safety' ? `<th>${t('col_quals')}</th>` : ''}
+          ${showQuals ? `<th>${t('col_quals')}</th>` : ''}
           <th>${t('col_updated')}</th>
           <th>${t('col_actions')}</th>
         </tr>

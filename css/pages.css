@@ -173,9 +173,12 @@
 .natid-cell { font-family: ui-monospace, monospace; font-size: 12px; }
 .expired-note { color: var(--danger); font-size: 11px; margin-inline-start: 6px; }
 .tbl tr.row-archived td { opacity: .6; }
-/* Resigned employees are flagged with a red row on the team list pages. */
+/* Resigned employees are flagged with a red row in the Resigned & Terminated tab. */
 .tbl tr.row-resigned td { background: var(--blocked-bg); }
 .tbl tr.row-resigned:hover td { background: color-mix(in srgb, var(--blocked-bg) 92%, var(--text)); }
+/* Terminated employees get a distinct gray row to tell them from resigned. */
+.tbl tr.row-terminated td { background: var(--na-bg); }
+.tbl tr.row-terminated:hover td { background: color-mix(in srgb, var(--na-bg) 92%, var(--text)); }
 /* Suspended employees are flagged with a yellow row on the team list pages. */
 .tbl tr.row-suspended td { background: var(--plan-bg); }
 .tbl tr.row-suspended:hover td { background: color-mix(in srgb, var(--plan-bg) 92%, var(--text)); }

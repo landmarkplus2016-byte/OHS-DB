@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { route: 'dashboard', ic: '◇', key: 'nav_dashboard' },
   { route: 'field', ic: '⚙', key: 'nav_field' },
   { route: 'safety', ic: '⛑', key: 'nav_safety' },
+  { route: 'separated', ic: '⛔', key: 'nav_separated' },
   { route: 'renewals', ic: '⏱', key: 'nav_renewals' },
   { route: 'export', ic: '↓', key: 'nav_export' },
   { route: 'settings', ic: '⚙', key: 'nav_settings', admin: true },

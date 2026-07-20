@@ -8,6 +8,7 @@ export const en = {
   nav_dashboard: 'Dashboard',
   nav_field: 'Field Team',
   nav_safety: 'Safety Team',
+  nav_separated: 'Resigned and Terminated',
   nav_renewals: 'Renewals',
   nav_export: 'Export',
   nav_settings: 'Settings',

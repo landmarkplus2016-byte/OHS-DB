@@ -7,6 +7,7 @@ export const ar = {
   nav_dashboard: 'اللوحة الرئيسية',
   nav_field: 'الفريق الميداني',
   nav_safety: 'فريق السلامة',
+  nav_separated: 'المستقيلون والمفصولون',
   nav_renewals: 'التجديدات',
   nav_export: 'تصدير',
   nav_settings: 'الإعدادات',
