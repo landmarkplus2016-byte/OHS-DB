@@ -126,7 +126,9 @@
 .bar-fill.teal { background: var(--teal); }
 
 /* Donut — segment fills come from these classes, never from inline hex. */
-.donut-wrap { display: flex; align-items: center; gap: 20px; }
+.donut-wrap { display: flex; align-items: center; justify-content: center; gap: 32px; }
+/* Pending-RDT summary line above the pending names on the dashboard card. */
+.dash-rdt-summary { font-size: 13px; color: var(--text2); margin-bottom: 10px; }
 .donut-legend { display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; }
 .donut-hole { fill: var(--card); }
 .donut-total { font-weight: 800; font-size: 18px; fill: var(--text); }

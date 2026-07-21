@@ -21,8 +21,6 @@ const STATE_ORDER = ['valid', 'plan', 'soon', 'urgent', 'expired', 'missing'];
 // How many days of history the KPI sparklines show, today last.
 const SPARK_DAYS = 7;
 
-const RECENT_LIMIT = 6;
-
 // ── derivation helpers ─────────────────────────────────────────────────────
 
 // Days-to-expiry for every certificate applicable to the given employees, with
@@ -113,7 +111,7 @@ function donutHtml(byState, total) {
 
   return `
     <div class="donut-wrap">
-      <svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="${t('chart_by_state')}">
+      <svg width="168" height="168" viewBox="0 0 120 120" role="img" aria-label="${t('chart_by_state')}">
         ${segs}
         <circle cx="60" cy="60" r="30" class="donut-hole"/>
         <text x="60" y="58" text-anchor="middle" class="donut-total">${total}</text>
@@ -147,6 +145,65 @@ function backupBannerHtml() {
         <div class="s">${sub}</div>
       </div>
       <button class="btn" data-action="download-backup">${t('download_backup')}</button>
+    </div>`;
+}
+
+// This calendar month's RDT selections, split into completed / pending, read
+// straight from each employee's rdt_log. Returns null when the RDT feature is
+// off or no list has been generated this month, so the card can show its empty
+// state. "Pending" means still in 'selected' status (not yet completed/missed).
+function rdtThisMonthStats() {
+  const rdt = DATA.meta && DATA.meta.rdt;
+  if (!rdt || rdt.enabled === false) return null;
+
+  const monthISO = new Date().toISOString().slice(0, 7);
+  const entries = [];
+  DATA.employees.forEach((e) => {
+    (e.rdt_log || []).forEach((entry) => {
+      if ((entry.selected_at || '').startsWith(monthISO)) entries.push({ employee: e, entry });
+    });
+  });
+  if (!entries.length) return null;
+
+  return {
+    total: entries.length,
+    completed: entries.filter((x) => x.entry.status === 'completed').length,
+    pending: entries.filter((x) => x.entry.status === 'selected'),
+  };
+}
+
+// The dashboard's RDT card (replaces the old "Recently updated" list): a one-line
+// completed/pending summary plus the names of anyone still pending, each linking
+// to the employee (reusing the .recent-row click binding).
+function rdtCardHtml() {
+  const stats = rdtThisMonthStats();
+
+  let body;
+  if (!stats) {
+    body = `<div class="chart-empty">${t('dash_rdt_none')}</div>`;
+  } else {
+    const summary = `<div class="dash-rdt-summary">${t('dash_rdt_summary', {
+      completed: stats.completed,
+      total: stats.total,
+      pending: stats.pending.length,
+    })}</div>`;
+
+    const list = stats.pending.length
+      ? stats.pending.map(({ employee }) => `
+          <div class="recent-row" data-emp="${employee.employee_id}">
+            <div class="avatar sm">${escapeHtml(initials(employee.name))}</div>
+            <div class="who"><b>${escapeHtml(employee.name)}</b> <span class="id">${employee.employee_id}</span></div>
+            <span class="badge st-soon">${t('rdt_pending_badge')}</span>
+          </div>`).join('')
+      : `<div class="chart-empty">${t('dash_rdt_no_pending')}</div>`;
+
+    body = summary + list;
+  }
+
+  return `
+    <div class="card">
+      <h3>${t('dash_rdt_title')}</h3>
+      ${body}
     </div>`;
 }
 
@@ -201,21 +258,6 @@ export function renderDashboardPage() {
     Object.entries(bySub).map(([k, v]) => [escapeHtml(k), v])
   );
 
-  // Recent activity spans every employee, archived included — archiving is
-  // itself an edit worth seeing here.
-  const recent = [...DATA.employees]
-    .sort((a, b) => String(b.meta?.updated_at || '').localeCompare(String(a.meta?.updated_at || '')))
-    .slice(0, RECENT_LIMIT);
-
-  const recentHtml = recent.length
-    ? recent.map((e) => `
-        <div class="recent-row" data-emp="${e.employee_id}">
-          <div class="avatar sm">${escapeHtml(initials(e.name))}</div>
-          <div class="who"><b>${escapeHtml(e.name)}</b> <span class="id">${e.employee_id}</span></div>
-          <div class="when">${fmtDate(e.meta && e.meta.updated_at)}</div>
-        </div>`).join('')
-    : `<div class="chart-empty">${t('chart_empty')}</div>`;
-
   return `
     ${backupBannerHtml()}
 
@@ -260,10 +302,7 @@ export function renderDashboardPage() {
         <h3>${t('chart_by_sub')}</h3>
         ${barChartHtml(bySubLabels, 'teal')}
       </div>
-      <div class="card">
-        <h3>${t('recent_activity')}</h3>
-        ${recentHtml}
-      </div>
+      ${rdtCardHtml()}
     </div>`;
 }
 
