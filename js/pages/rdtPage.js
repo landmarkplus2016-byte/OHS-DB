@@ -18,6 +18,7 @@ import {
   currentFiscalYear,
   isRepeatMonth,
   eligibleEmployees,
+  eligibleIgnoringMcu,
   monthlyQuota,
 } from '../utils/rdt.js';
 import {
@@ -149,15 +150,22 @@ function heroCardHtml(prog, fy, repeat) {
     </div>`;
 }
 
-function monthCardHtml(today, repeat, pool, quota, monthSel) {
+function monthCardHtml(today, repeat, pool, quota, monthSel, mcuExcludedCount) {
   const quotaLine = t('rdt_quota_line', { quota, pool: pool.length, pct: DATA.meta.rdt.monthly_target_pct });
   const phaseLabel = t(repeat ? 'rdt_month_phase_repeat' : 'rdt_month_phase_normal');
+
+  // Helper line: how many otherwise-eligible employees the MCU rule dropped from
+  // this month's pool. Only shown when the count is > 0 (no zero-count noise).
+  const mcuNote = mcuExcludedCount > 0
+    ? `<div class="meta rdt-mcu-note">${t('rdt_mcu_excluded_note', { count: mcuExcludedCount })}</div>`
+    : '';
 
   const head = `
     <div class="rdt-card-head">
       <div>
         <h3>${t('rdt_this_month')} · ${escapeHtml(monthLabel(today))}</h3>
         <div class="meta">${phaseLabel} — ${quotaLine}</div>
+        ${mcuNote}
       </div>
     </div>`;
 
@@ -235,10 +243,12 @@ export function renderRdtPage() {
   const pool = eligibleEmployees(DATA.employees, today, rdt);
   const quota = monthlyQuota(pool.length, rdt.monthly_target_pct);
   const monthSel = thisMonthSelections(today);
+  // How many in-scope employees the MCU rule dropped from the pool this month.
+  const mcuExcludedCount = eligibleIgnoringMcu(DATA.employees, today, rdt).length - pool.length;
 
   return `
     ${heroCardHtml(prog, fy, repeat)}
-    ${monthCardHtml(today, repeat, pool, quota, monthSel)}
+    ${monthCardHtml(today, repeat, pool, quota, monthSel, mcuExcludedCount)}
     ${recentCardHtml(fy)}`;
 }
 

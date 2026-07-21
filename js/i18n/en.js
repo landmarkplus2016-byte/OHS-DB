@@ -418,6 +418,8 @@ export const en = {
 
   rdt_history_section: 'RDT history',
   rdt_history_empty: 'No RDT entries yet.',
+  rdt_ineligible_mcu: 'Not eligible for RDT — MCU expired',
+  rdt_mcu_excluded_note: '{count} employees excluded — MCU expired or missing',
 
   col_last_rdt: 'Last RDT',
 

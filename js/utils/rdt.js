@@ -35,10 +35,13 @@ export function isRepeatMonth(today, rdtConfig) {
 
 // ── eligible pool ───────────────────────────────────────────────────────────
 
-// Everyone in scope for testing at the moment `today`: recomputed every call,
-// never frozen (CLAUDE.rdt.md rule 2). Field team of any title; safety team only
-// if titled "Safety Officer"; active, not archived, and past the hire grace.
-export function eligibleEmployees(allEmployees, today, rdtConfig) {
+// Everyone in scope EXCEPT for the MCU rule: recomputed every call, never frozen
+// (CLAUDE.rdt.md rule 2). Field team of any title; safety team only if titled
+// "Safety Officer"; active, not archived, and past the hire grace. This is the
+// pre-MCU pool — eligibleEmployees layers the MCU exclusion on top of it, and the
+// RDT page uses this to count how many the MCU rule dropped. Keeping the shared
+// filter in one place means the two views can never drift apart.
+export function eligibleIgnoringMcu(allEmployees, today, rdtConfig) {
   return allEmployees.filter((emp) => {
     if (emp.personal.archived) return false;
     if (emp.personal.employment_status !== 'Active') return false;
@@ -50,6 +53,25 @@ export function eligibleEmployees(allEmployees, today, rdtConfig) {
     if ((today - hired) < graceMs) return false;
     return true;
   });
+}
+
+// True if the employee has a valid (present, non-expired) MCU at `today`. An
+// expired or missing MCU means they're in the MCU renewal window, which itself
+// includes a drug test, so a standalone RDT would be redundant. Boundary is
+// `>= today` — an MCU expiring today is still valid (mirrors deriveCertState).
+export function hasValidMcu(emp, today) {
+  const todayISO = today.toISOString().slice(0, 10);
+  const mcuExpiry = emp.certificates && emp.certificates.mcu && emp.certificates.mcu.expiry_date;
+  if (!mcuExpiry) return false;
+  if (mcuExpiry < todayISO) return false;
+  return true;
+}
+
+// The full eligible pool: in-scope AND holding a valid MCU (CLAUDE.rdt.patch.md
+// rule 11). Composed from the two helpers above so the MCU exclusion stays in
+// lockstep with the base filter.
+export function eligibleEmployees(allEmployees, today, rdtConfig) {
+  return eligibleIgnoringMcu(allEmployees, today, rdtConfig).filter((emp) => hasValidMcu(emp, today));
 }
 
 // ── untested vs already-tested (current fiscal year) ────────────────────────

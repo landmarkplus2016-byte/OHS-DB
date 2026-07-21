@@ -417,6 +417,8 @@ export const ar = {
 
   rdt_history_section: 'سجل الفحص العشوائي',
   rdt_history_empty: 'لا توجد سجلات بعد.',
+  rdt_ineligible_mcu: 'غير مؤهل للفحص العشوائي — انتهت صلاحية الفحص الطبي',
+  rdt_mcu_excluded_note: 'تم استبعاد {count} موظفين — انتهت صلاحية الفحص الطبي أو غير مسجل',
 
   col_last_rdt: 'آخر فحص عشوائي',
 

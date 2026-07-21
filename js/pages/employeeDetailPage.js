@@ -24,6 +24,7 @@ import {
   rdtResultBadgeHtml,
 } from '../components/badge.js';
 import { fmtDate, escapeHtml, daysUntil } from '../utils/format.js';
+import { hasValidMcu } from '../utils/rdt.js';
 import { openModal } from '../components/modal.js';
 import { showToast } from '../components/toast.js';
 import { archiveEmployee, unarchiveEmployee, deleteEmployee } from '../data/dataActions.js';
@@ -153,8 +154,15 @@ function rdtHistoryHtml(emp) {
       </table>`
     : `<div class="chart-empty">${t('rdt_history_empty')}</div>`;
 
+  // Display-only hint: an expired/missing MCU takes the employee out of the RDT
+  // pool (CLAUDE.rdt.patch.md rule 11). Show it beside the section title. Uses
+  // today's date so it tracks the same boundary as the eligibility filter.
+  const mcuBadge = hasValidMcu(emp, new Date())
+    ? ''
+    : `<span class="badge st-blocked rdt-ineligible-badge">${t('rdt_ineligible_mcu')}</span>`;
+
   return `
-    <div class="section-head">${t('rdt_history_section')}</div>
+    <div class="section-head">${t('rdt_history_section')}${mcuBadge}</div>
     <div class="card">${body}</div>`;
 }
 
