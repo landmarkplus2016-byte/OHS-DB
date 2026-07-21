@@ -247,9 +247,11 @@ export function renderRdtPage() {
   const mcuExcludedCount = eligibleIgnoringMcu(DATA.employees, today, rdt).length - pool.length;
 
   return `
-    ${heroCardHtml(prog, fy, repeat)}
-    ${monthCardHtml(today, repeat, pool, quota, monthSel, mcuExcludedCount)}
-    ${recentCardHtml(fy)}`;
+    <div class="rdt-page">
+      ${heroCardHtml(prog, fy, repeat)}
+      ${monthCardHtml(today, repeat, pool, quota, monthSel, mcuExcludedCount)}
+      ${recentCardHtml(fy)}
+    </div>`;
 }
 
 // Topbar meta — the always-present Export JSON button is added by the shell.

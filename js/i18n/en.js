@@ -362,20 +362,20 @@ export const en = {
 
   rdt_page_title: 'Random Drug Testing',
   rdt_page_sub: 'Monthly selection and yearly compliance tracking',
-  rdt_history_title: 'RDT history',
+  rdt_history_title: 'RDT History',
 
   rdt_enable_prompt: 'RDT tracking is not yet configured for this dataset.',
   rdt_enable_button: 'Enable RDT feature',
 
-  rdt_fiscal_year: 'Fiscal year {label}',
-  rdt_pool_size: 'Eligible employees',
-  rdt_yearly_target: 'Yearly target',
+  rdt_fiscal_year: 'Fiscal Year {label}',
+  rdt_pool_size: 'Eligible Employees',
+  rdt_yearly_target: 'Yearly Target',
   rdt_completed: 'Completed',
-  rdt_unique_tested: 'Unique employees tested',
+  rdt_unique_tested: 'Unique Employees Tested',
   rdt_coverage: 'Coverage',
-  rdt_target_progress: 'Target progress',
+  rdt_target_progress: 'Target Progress',
 
-  rdt_this_month: "This month's selection",
+  rdt_this_month: "This Month's Selection",
   rdt_month_phase_normal: 'First-time tests (Apr–Jan phase)',
   rdt_month_phase_repeat: 'Repeat tests (Feb/Mar phase)',
   rdt_generate: 'Generate this month',
@@ -416,7 +416,7 @@ export const en = {
   rdt_filter_result: 'Result',
   rdt_filter_team: 'Team',
 
-  rdt_history_section: 'RDT history',
+  rdt_history_section: 'RDT History',
   rdt_history_empty: 'No RDT entries yet.',
   rdt_ineligible_mcu: 'Not eligible for RDT — MCU expired',
   rdt_mcu_excluded_note: '{count} employees excluded — MCU expired or missing',
@@ -431,9 +431,9 @@ export const en = {
   rdt_setting_repeat_months: 'Repeat months',
 
   // RDT — extra keys the page needs (beyond the addendum list)
-  rdt_recent_activity: 'Recent activity',
+  rdt_recent_activity: 'Recent Activity',
   rdt_view_history: 'View full history →',
-  rdt_first_round_marker: 'First round complete',
+  rdt_first_round_marker: 'First Round Complete',
   col_emp_id: 'ID',
   rdt_col_selected_at: 'Selected at',
   rdt_col_employee: 'Employee',

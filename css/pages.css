@@ -511,6 +511,9 @@
 /* ---------- RDT (random drug testing) ---------- */
 /* Reuses .card / .tbl / .badge / .bar-track — only page-specific layout here. */
 
+/* Stack the dashboard cards with breathing room between them. */
+.rdt-page { display: flex; flex-direction: column; gap: 18px; }
+
 /* Onboarding empty state (feature not yet enabled). */
 .rdt-onboard { text-align: center; padding: 40px 24px; }
 .rdt-onboard-ic { font-size: 42px; margin-bottom: 12px; }
