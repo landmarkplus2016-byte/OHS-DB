@@ -393,6 +393,8 @@ export const ar = {
   rdt_mark_missed: 'تحديد كفائت',
   rdt_swap: 'استبدال',
   rdt_edit: 'تعديل',
+  rdt_revert: 'إرجاع إلى مختار',
+  rdt_revert_confirm: 'إرجاع هذا السجل إلى "مختار"؟ سيتم مسح تاريخ الفحص والنتيجة والملاحظات.',
   rdt_delete: 'حذف',
 
   rdt_complete_title: 'تحديد الفحص كمكتمل',
@@ -449,5 +451,6 @@ export const ar = {
   rdt_toast_completed: 'تم تحديد الفحص كمكتمل',
   rdt_toast_missed: 'تم تحديد الفحص كفائت',
   rdt_toast_edited: 'تم تحديث السجل',
+  rdt_toast_reverted: 'تم إرجاع السجل إلى "مختار"',
   rdt_toast_deleted: 'تم حذف السجل',
 };

@@ -79,6 +79,16 @@ export function loadJSON(jsonString) {
   if (!parsed.meta || !Array.isArray(parsed.users) || !Array.isArray(parsed.employees)) {
     return { ok: false, error: 'invalid_shape' };
   }
+  // A course with no expiry date means it isn't needed for that employee — on
+  // upload, auto-tick its N/A flag so the card reads (and dims) as "not needed"
+  // without the admin having to click each one. A date being present always wins.
+  for (const emp of parsed.employees) {
+    if (!emp || !emp.certificates) continue;
+    for (const key of Object.keys(emp.certificates)) {
+      const cert = emp.certificates[key];
+      if (cert && !cert.expiry_date) cert.na = true;
+    }
+  }
   setData(parsed);
   clearDirty();
   scheduleAdminCacheSave();
@@ -329,6 +339,23 @@ export function markRdtMissed(employee_id, log_id, notes) {
   }
   found.entry.status = 'missed';
   found.entry.notes = notes || '';
+  markDirty();
+  return { ok: true };
+}
+
+// Reverts a 'completed' or 'missed' entry back to 'selected' — used when the
+// admin marked it by mistake. Clears the test date, result, and notes so the row
+// returns to a clean selected state, keeping its slot in this month's list so it
+// can be swapped, re-marked, or completed correctly. No-op on 'selected' entries.
+export function revertRdtToSelected(employee_id, log_id) {
+  const found = findRdtEntry(employee_id, log_id);
+  if (!found || found.entry.status === 'selected') {
+    return { ok: false, error: 'entry_not_found' };
+  }
+  found.entry.status = 'selected';
+  found.entry.test_date = '';
+  found.entry.result = '';
+  found.entry.notes = '';
   markDirty();
   return { ok: true };
 }

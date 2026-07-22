@@ -28,6 +28,7 @@ import {
   markRdtMissed,
   swapRdtSelection,
   editRdtEntry,
+  revertRdtToSelected,
   deleteRdtEntry,
 } from '../data/dataActions.js';
 import { teamBadgeHtml, rdtStatusBadgeHtml, rdtResultBadgeHtml } from '../components/badge.js';
@@ -96,10 +97,12 @@ function rowActions(empId, entry) {
   }
   if (entry.status === 'completed') {
     return actBtn('edit', 'rdt_edit', empId, entry.log_id)
+      + actBtn('revert', 'rdt_revert', empId, entry.log_id)
       + actBtn('delete', 'rdt_delete', empId, entry.log_id, 'btn-danger');
   }
   // missed
-  return actBtn('delete', 'rdt_delete', empId, entry.log_id, 'btn-danger');
+  return actBtn('revert', 'rdt_revert', empId, entry.log_id)
+    + actBtn('delete', 'rdt_delete', empId, entry.log_id, 'btn-danger');
 }
 
 function monthRowHtml({ employee, entry }) {
@@ -417,6 +420,20 @@ export function bindRdtPageEvents() {
   on('edit', (el) => openCompleteModal(el.dataset.emp, el.dataset.log, findEntry(el.dataset.emp, el.dataset.log)));
   on('missed', (el) => openMissedModal(el.dataset.emp, el.dataset.log));
   on('swap', (el) => openSwapModal(el.dataset.emp, el.dataset.log));
+
+  on('revert', (el) => {
+    confirmModal(
+      t('rdt_revert'),
+      `<p>${t('rdt_revert_confirm')}</p>`,
+      t('rdt_revert'),
+      'btn-primary',
+      () => {
+        revertRdtToSelected(el.dataset.emp, el.dataset.log);
+        render();
+        showToast(t('rdt_toast_reverted'), 'success');
+      }
+    );
+  });
 
   on('delete', (el) => {
     confirmModal(

@@ -158,7 +158,7 @@ export const en = {
   st_na: 'N/A',
   cert_na_label: 'Not needed (N/A)',
   cert_na_note: 'Not needed for this employee',
-  cert_suspended_label: 'Suspended course',
+  cert_suspended_label: 'Suspended Course',
   days_left: 'days left',
   days_ago: 'days ago',
 
@@ -394,6 +394,8 @@ export const en = {
   rdt_mark_missed: 'Mark missed',
   rdt_swap: 'Swap',
   rdt_edit: 'Edit',
+  rdt_revert: 'Revert to Selected',
+  rdt_revert_confirm: 'Revert this entry to Selected? The recorded test date, result, and notes will be cleared.',
   rdt_delete: 'Delete',
 
   rdt_complete_title: 'Mark RDT completed',
@@ -450,5 +452,6 @@ export const en = {
   rdt_toast_completed: 'Test marked completed',
   rdt_toast_missed: 'Test marked missed',
   rdt_toast_edited: 'Entry updated',
+  rdt_toast_reverted: 'Entry reverted to Selected',
   rdt_toast_deleted: 'Entry deleted',
 };

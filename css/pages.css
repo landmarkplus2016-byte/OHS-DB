@@ -328,6 +328,8 @@
 .cert-edit-na { background: var(--na-bg); border-color: var(--na-bg); }
 .cert-edit-na .field { opacity: .55; }
 .cert-edit-na .cert-na-check { opacity: 1; color: var(--na-tx); font-weight: 600; }
+/* When N/A is on, the course isn't needed, so "Suspended Course" is moot — dim it. */
+.cert-edit-na .cert-suspended-check { opacity: .4; cursor: not-allowed; }
 
 /* "Suspended course" checkbox under each cert, and the yellow state it drives. */
 .cert-suspended-check {

@@ -222,7 +222,7 @@ function certBlockHtml(key) {
       ${t('cert_na_label')}
     </label>
     <label class="check cert-suspended-check">
-      <input type="checkbox" data-path="certificates.${key}.suspended" data-cert-suspended="${key}"${suspended ? ' checked' : ''}>
+      <input type="checkbox" data-path="certificates.${key}.suspended" data-cert-suspended="${key}"${suspended ? ' checked' : ''}${dis}>
       ${t('cert_suspended_label')}
     </label>
   </div>`;
@@ -412,6 +412,10 @@ export function bindEmployeeFormPageEvents() {
       block.querySelectorAll('input[type="date"], input[type="text"]').forEach((inp) => {
         inp.disabled = cb.checked;
       });
+      // N/A means the course isn't needed at all, so "Suspended Course" can't
+      // apply — dim and disable it (the .cert-edit-na CSS greys it out).
+      const susp = block.querySelector('[data-cert-suspended]');
+      if (susp) susp.disabled = cb.checked;
     });
   });
 
