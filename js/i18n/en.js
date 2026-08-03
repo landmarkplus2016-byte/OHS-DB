@@ -49,6 +49,8 @@ export const en = {
   dash_rdt_summary: 'This month: {completed} of {total} completed · {pending} pending',
   dash_rdt_none: 'No RDT selection generated this month.',
   dash_rdt_no_pending: 'No pending tests.',
+  dash_rdt_coverage_title: 'RDT Coverage',
+  dash_rdt_coverage_off: 'RDT tracking is off.',
   rdt_pending_badge: 'Pending',
   backup_due: 'Remember to upload the exported file to Google Drive',
   backup_last_ago: 'Last backup: {days} days ago ({date})',
@@ -156,6 +158,7 @@ export const en = {
   st_expired: 'Expired',
   st_missing: 'Missing',
   st_na: 'N/A',
+  st_suspended: 'Suspended',
   cert_na_label: 'Not needed (N/A)',
   cert_na_note: 'Not needed for this employee',
   cert_suspended_label: 'Suspended Course',
@@ -176,6 +179,7 @@ export const en = {
   reason_legal: 'VF Approval is not Approved',
   reason_expired: '{cert} expired {days} days ago',
   reason_expiring: '{cert} expires in {days} days',
+  reason_wah_suspended: '{cert} suspended — Medical Check-Up expired',
 
   // ---------- Buttons / common ----------
   save: 'Save',

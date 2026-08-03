@@ -11,12 +11,10 @@ import { go } from '../router.js';
 import { render } from '../render.js';
 import { CERT_LABEL_KEYS, applicableCerts } from '../constants/fields.js';
 import { deriveEmployeeCompliance } from '../utils/compliance.js';
+import { yearlyProgress } from '../utils/rdt.js';
 import { fmtDate, escapeHtml, initials, daysUntil } from '../utils/format.js';
 import { exportJSON } from '../data/dataActions.js';
 import { showToast } from '../components/toast.js';
-
-// Donut/legend states, in the order they read best top-to-bottom.
-const STATE_ORDER = ['valid', 'plan', 'soon', 'urgent', 'expired', 'missing'];
 
 // How many days of history the KPI sparklines show, today last.
 const SPARK_DAYS = 7;
@@ -78,46 +76,46 @@ function barChartHtml(counts, accent) {
   return entries.map(([label, v]) => barHtml(label, v, max, accent)).join('');
 }
 
-// Donut of employees by worst compliance state. Segment colours come from CSS
-// classes (fill: var(--state-*)) so no hex is hardcoded outside tokens.css.
-function donutHtml(byState, total) {
-  const present = STATE_ORDER.filter((s) => byState[s] > 0);
+// RDT coverage card — replaces the compliance donut. Headline is the share of
+// the eligible pool tested at least once this fiscal year (yearlyProgress'
+// coverage_pct), with a second bar for progress toward the 120% yearly target.
+// All figures come from the shared, pure yearlyProgress() so this never drifts
+// from the RDT page. Shows an off state when the RDT feature isn't configured.
+function rdtCoverageCardHtml() {
+  const rdt = DATA.meta && DATA.meta.rdt;
+  const off = !rdt || rdt.enabled === false;
 
-  let segs;
-  if (!total) {
-    segs = '<circle cx="60" cy="60" r="54" class="donut-seg s-empty"/>';
-  } else if (present.length === 1) {
-    // A single state fills the ring: an arc whose start and end coincide draws
-    // nothing, so draw a plain circle instead.
-    segs = `<circle cx="60" cy="60" r="54" class="donut-seg s-${present[0]}"/>`;
+  let body;
+  if (off) {
+    body = `<div class="chart-empty">${t('dash_rdt_coverage_off')}</div>`;
   } else {
-    let acc = 0;
-    segs = present.map((s) => {
-      const frac = byState[s] / total;
-      const start = acc * 2 * Math.PI - Math.PI / 2;
-      const end = (acc + frac) * 2 * Math.PI - Math.PI / 2;
-      acc += frac;
-      const large = frac > 0.5 ? 1 : 0;
-      const r = 54, cx = 60, cy = 60;
-      const x1 = cx + r * Math.cos(start), y1 = cy + r * Math.sin(start);
-      const x2 = cx + r * Math.cos(end), y2 = cy + r * Math.sin(end);
-      return `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z" class="donut-seg s-${s}"/>`;
-    }).join('');
+    const prog = yearlyProgress(DATA.employees, new Date(), rdt);
+    const coverage = Math.round(prog.coverage_pct);
+    const target = Math.round(prog.target_pct);
+    body = `
+      <div class="rdt-cov">
+        <div class="rdt-cov-pct">${coverage}%</div>
+        <div class="rdt-cov-cap">${t('rdt_fiscal_year', { label: prog.fiscal_year })}</div>
+      </div>
+      ${barPctHtml(t('rdt_coverage'), `${prog.unique_tested_count}/${prog.pool_size}`, coverage, 'primary')}
+      ${barPctHtml(t('rdt_target_progress'), `${prog.completed_count}/${prog.yearly_target}`, target, 'teal')}`;
   }
 
-  const legend = present.map((s) => `
-    <div><span class="legend-dot s-${s}"></span>${t('st_' + s)} <b>${byState[s]}</b></div>
-  `).join('');
-
   return `
-    <div class="donut-wrap">
-      <svg width="168" height="168" viewBox="0 0 120 120" role="img" aria-label="${t('chart_by_state')}">
-        ${segs}
-        <circle cx="60" cy="60" r="30" class="donut-hole"/>
-        <text x="60" y="58" text-anchor="middle" class="donut-total">${total}</text>
-        <text x="60" y="74" text-anchor="middle" class="donut-cap">${t('employees_label')}</text>
-      </svg>
-      <div class="donut-legend">${legend}</div>
+    <div class="card">
+      <h3>${t('dash_rdt_coverage_title')}</h3>
+      ${body}
+    </div>`;
+}
+
+// A labelled bar whose fill is a percentage (0–100, clamped) rather than a value
+// scaled against a peak — used for the RDT coverage/target progress bars.
+function barPctHtml(label, valueText, pct, accent) {
+  const width = Math.max(0, Math.min(100, pct));
+  return `
+    <div class="bar-item">
+      <div class="bar-head"><span>${label}</span><span><b>${valueText}</b></span></div>
+      <div class="bar-track"><div class="bar-fill ${accent}" style="width:${width}%"></div></div>
     </div>`;
 }
 
@@ -244,10 +242,6 @@ export function renderDashboardPage() {
     byCert[label] = (byCert[label] || 0) + 1;
   }));
 
-  // Employees by worst state (donut) and by subcontractor (bars).
-  const byState = { valid: 0, plan: 0, soon: 0, urgent: 0, expired: 0, missing: 0 };
-  comp.forEach((c) => { byState[c.worst]++; });
-
   // Grouped on the raw value, escaped only once it becomes a bar label.
   const bySub = {};
   active.forEach((e) => {
@@ -291,10 +285,7 @@ export function renderDashboardPage() {
         <h3>${t('chart_by_cert', { days: planWindow })}</h3>
         ${barChartHtml(byCert, 'primary')}
       </div>
-      <div class="card">
-        <h3>${t('chart_by_state')}</h3>
-        ${donutHtml(byState, comp.length)}
-      </div>
+      ${rdtCoverageCardHtml()}
     </div>
 
     <div class="chart-row">

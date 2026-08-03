@@ -125,6 +125,11 @@
 .bar-fill.primary { background: var(--primary); }
 .bar-fill.teal { background: var(--teal); }
 
+/* RDT coverage card (dashboard) — big headline percentage above two progress bars. */
+.rdt-cov { text-align: center; margin: 6px 0 16px; }
+.rdt-cov-pct { font-size: 44px; font-weight: 800; line-height: 1; color: var(--primary); }
+.rdt-cov-cap { font-size: 12.5px; color: var(--text2); margin-top: 4px; }
+
 /* Donut — segment fills come from these classes, never from inline hex. */
 .donut-wrap { display: flex; align-items: center; justify-content: center; gap: 32px; }
 /* Pending-RDT summary line above the pending names on the dashboard card. */
@@ -346,8 +351,8 @@
 
 /* N/A cert row on the detail page reads muted, like the "not needed" note. */
 .cert-row-na { background: var(--na-bg); border-color: var(--na-bg); }
-/* Suspended-course cert row on the detail page reads yellow. */
-.cert-row-suspended { background: var(--plan-bg); border-color: var(--plan-bg); }
+/* Suspended-course cert row on the detail page (WAH voided by expired MCU). */
+.cert-row-suspended { background: var(--suspended-bg); border-color: var(--suspended-bg); }
 
 .qual-checks { display: flex; gap: 20px; flex-wrap: wrap; }
 .qual-checks .check { display: flex; align-items: center; gap: 6px; font-size: 13px; }

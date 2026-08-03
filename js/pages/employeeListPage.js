@@ -251,7 +251,18 @@ export function bindEmployeeListPageEvents() {
 
   const searchInput = app.querySelector('[data-filter="search"]');
   if (searchInput) {
-    searchInput.addEventListener('input', (e) => { UI.search = e.target.value; resetAndRender(); });
+    searchInput.addEventListener('input', (e) => {
+      const caret = e.target.selectionStart;
+      UI.search = e.target.value;
+      resetAndRender();
+      // render() rebuilds the DOM via innerHTML, destroying this input, so the
+      // focus and caret must be restored on the freshly-rendered one.
+      const next = document.getElementById('app')?.querySelector('[data-filter="search"]');
+      if (next) {
+        next.focus();
+        if (caret != null) next.setSelectionRange(caret, caret);
+      }
+    });
   }
 
   const setFilter = (sel, key) => {

@@ -48,6 +48,8 @@ export const ar = {
   dash_rdt_summary: 'هذا الشهر: {completed} من {total} مكتمل · {pending} قيد الانتظار',
   dash_rdt_none: 'لم يتم إنشاء قائمة فحص عشوائي لهذا الشهر.',
   dash_rdt_no_pending: 'لا توجد اختبارات قيد الانتظار.',
+  dash_rdt_coverage_title: 'تغطية الفحص العشوائي',
+  dash_rdt_coverage_off: 'تتبّع الفحص العشوائي غير مُفعّل.',
   rdt_pending_badge: 'قيد الانتظار',
   backup_due: 'لا تنسَ رفع الملف المُصدَّر إلى Google Drive',
   backup_last_ago: 'آخر نسخة احتياطية: منذ {days} يوم ({date})',
@@ -155,6 +157,7 @@ export const ar = {
   st_expired: 'منتهي',
   st_missing: 'مفقود',
   st_na: 'غير مطلوبة',
+  st_suspended: 'موقوفة',
   cert_na_label: 'غير مطلوبة لهذا الموظف',
   cert_na_note: 'غير مطلوبة لهذا الموظف',
   cert_suspended_label: 'دورة موقوفة',
@@ -175,6 +178,7 @@ export const ar = {
   reason_legal: 'موافقة VF ليست معتمدة',
   reason_expired: '{cert} انتهت منذ {days} يوم',
   reason_expiring: '{cert} تنتهي خلال {days} يوم',
+  reason_wah_suspended: '{cert} موقوفة — انتهت صلاحية الفحص الطبي',
 
   // ---------- Buttons / common ----------
   save: 'حفظ',

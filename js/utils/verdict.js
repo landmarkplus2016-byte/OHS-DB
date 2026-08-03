@@ -19,12 +19,26 @@ export function deriveSiteCheckVerdict(employee, thresholds) {
   if (p.archived) blockers.push({ type: 'status', text: t('reason_archived') });
   if (p.legal_permission !== 'Approved') blockers.push({ type: 'legal', text: t('reason_legal') });
 
+  // An expired medical (MCU) voids the Working-at-Heights certs — the medical
+  // must be renewed before WAH can be exercised (mirrors deriveEmployeeCompliance).
+  const mcuCert = employee.certificates?.mcu;
+  const mcuExpired = !mcuCert?.na && !!mcuCert?.expiry_date && daysUntil(mcuCert.expiry_date) < 0;
+
   // Blocker certificates: expired → blocker; expiring within urgent window → warning.
   // A missing expiry date (empty) is neither a blocker nor a warning, and a cert
   // flagged N/A (not needed for this employee) is skipped outright.
   BLOCKER_CERT_KEYS.forEach((k) => {
     const cert = employee.certificates?.[k];
     if (cert?.na) return;
+    // WAH suspension supersedes the cert's own date: while the MCU is expired a
+    // recorded WAH cert is a blocker regardless of its own expiry. A WAH cert that
+    // was never recorded stays silent — there is nothing to suspend.
+    if (mcuExpired && (k === 'wah_practical' || k === 'wah_theoretical')) {
+      if (cert?.expiry_date) {
+        blockers.push({ type: 'cert', text: t('reason_wah_suspended', { cert: t(CERT_LABEL_KEYS[k]) }) });
+      }
+      return;
+    }
     const dtStr = cert?.expiry_date;
     if (!dtStr) return;
     const d = daysUntil(dtStr);

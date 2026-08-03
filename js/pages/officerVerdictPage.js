@@ -13,7 +13,7 @@ import { t } from '../i18n/i18n.js';
 import { go } from '../router.js';
 import { escapeHtml, fmtDate, daysUntil } from '../utils/format.js';
 import { deriveSiteCheckVerdict } from '../utils/verdict.js';
-import { deriveCertState } from '../utils/compliance.js';
+import { deriveEmployeeCompliance } from '../utils/compliance.js';
 import { applicableCerts, CERT_LABEL_KEYS } from '../constants/fields.js';
 import { certStateBadgeHtml, teamBadgeHtml, employmentStatusBadgeHtml, legalPermissionBadgeHtml } from '../components/badge.js';
 import { OFFICER_STATE } from '../data/officerSync.js';
@@ -44,6 +44,9 @@ export function renderOfficerVerdictPage() {
 
   const thr = thresholds();
   const v = deriveSiteCheckVerdict(emp, thr);
+  // per_cert carries the WAH-suspended state (an expired MCU voids WAH), so the
+  // cert list matches the verdict reasons. Derived once, shared by every row.
+  const comp = deriveEmployeeCompliance(emp, thr);
   const p = emp.personal || {};
 
   return `
@@ -69,7 +72,7 @@ export function renderOfficerVerdictPage() {
 
     <div class="cert-block">
       <h3>${t('section_all_certs')}</h3>
-      ${applicableCerts(emp).map((k) => certLineHtml(emp, k, thr)).join('')}
+      ${applicableCerts(emp).map((k) => certLineHtml(emp, k, comp.per_cert[k])).join('')}
     </div>
 
     <div style="height:20px"></div>`;
@@ -102,15 +105,22 @@ function reasonItemHtml(r, cls, icon) {
     </div>`;
 }
 
-function certLineHtml(emp, key, thr) {
+function certLineHtml(emp, key, state) {
   const cert = (emp.certificates && emp.certificates[key]) || {};
   const expiry = cert.expiry_date || '';
-  const state = deriveCertState(expiry, thr, cert.na);
 
-  // N/A: not needed for this employee — show the note instead of a date/countdown.
-  const d = state === 'na' ? null : daysUntil(expiry);
-  const age = d === null ? '' : ` (${d >= 0 ? `${d} ${t('days_left')}` : `${Math.abs(d)} ${t('days_ago')}`})`;
-  const dateLine = state === 'na' ? t('cert_na_note') : `${fmtDate(expiry)}${age}`;
+  // In the officer app a course with no recorded expiry reads as N/A, not
+  // "Missing" — from the field, absent data and not-applicable are the same
+  // "no valid record" outcome. Genuine N/A (admin flagged) reads the same way.
+  const asNa = state === 'missing' ? 'na' : state;
+
+  // N/A rows carry no date/countdown (there is none, or it isn't applicable). A
+  // suspended WAH still shows its own recorded date so the officer can see when
+  // the underlying cert lapses, alongside the Suspended badge.
+  const showDate = asNa !== 'na';
+  const d = showDate ? daysUntil(expiry) : null;
+  const age = d == null ? '' : ` (${d >= 0 ? `${d} ${t('days_left')}` : `${Math.abs(d)} ${t('days_ago')}`})`;
+  const dateLine = showDate ? `${fmtDate(expiry)}${age}` : '—';
 
   return `
     <div class="cert-line">
@@ -118,7 +128,7 @@ function certLineHtml(emp, key, thr) {
         <div class="cert-line-name">${t(CERT_LABEL_KEYS[key])}</div>
         <div class="cert-line-date">${dateLine}</div>
       </div>
-      ${certStateBadgeHtml(state)}
+      ${certStateBadgeHtml(asNa)}
     </div>`;
 }
 
