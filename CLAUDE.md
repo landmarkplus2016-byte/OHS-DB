@@ -173,8 +173,7 @@ This account exists only in memory. It is never written to any JSON. Real admin 
     "backup_reminder_days": 7,
     "warning_thresholds": {
       "urgent_days": 30,
-      "soon_days":   60,
-      "plan_days":   90
+      "soon_days":   60
     },
     "field_sync": {
       "endpoint_url": "https://script.google.com/macros/s/AKfycb.../exec",
@@ -298,8 +297,10 @@ Certificate status is computed at render time by `deriveCertState(expiryDate, th
 | `expired` | expiry_date < today | Red |
 | `urgent` | expiry_date within `urgent_days` (default 30) | Orange |
 | `soon` | expiry_date within `soon_days` (default 60) | Amber |
-| `plan` | expiry_date within `plan_days` (default 90) | Yellow |
-| `valid` | expiry_date beyond `plan_days` | Green |
+| `valid` | expiry_date beyond `soon_days` | Green |
+| `suspended` | a WAH cert (`wah_practical`/`wah_theoretical`) while `mcu` is expired | Violet |
+
+There is **no 90-day `plan` / "Renew soon" tier** — the ≤60 (`soon`) and ≤30 (`urgent`) notifications are the whole ladder. The `plan` color tokens/badge classes still exist because the RDT page and suspended-row styling reuse them, but `deriveCertState` never returns `plan`.
 
 ### Aggregate per employee
 
@@ -308,7 +309,7 @@ Certificate status is computed at render time by `deriveCertState(expiryDate, th
 {
   per_cert: { wah_practical: 'valid', mcu: 'urgent', ra: 'expired', ... },
   worst: 'expired',           // aggregate: worst state across applicable certs
-  expiring_soon_count: 3,     // count of certs in urgent/soon/plan
+  expiring_soon_count: 3,     // count of certs in urgent/soon
   expired_count: 1
 }
 ```
@@ -319,7 +320,7 @@ Applicable certs depend on team:
 
 `missing` certs on applicable keys count in `worst` only when they're the ONLY state present (all valid → worst is `valid`, but valid + missing → worst is still `missing` for display honesty).
 
-State ranking (highest wins for `worst`): expired > urgent > soon > plan > missing > valid.
+State ranking (highest wins for `worst`): expired = suspended > urgent > soon > missing > valid.
 
 ---
 

@@ -36,7 +36,6 @@ export function makeBootstrapData() {
       warning_thresholds: {
         urgent_days: 30,
         soon_days: 60,
-        plan_days: 90,
       },
       field_sync: {
         endpoint_url: '',

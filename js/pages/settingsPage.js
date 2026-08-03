@@ -189,7 +189,7 @@ function thresholdsPanelHtml() {
       <div class="thresh-grid">
         ${numberFieldHtml('thr-urgent', 'threshold_urgent', thr.urgent_days)}
         ${numberFieldHtml('thr-soon', 'threshold_soon', thr.soon_days)}
-        ${numberFieldHtml('thr-plan', 'threshold_plan', thr.plan_days)}
+        <div></div>
       </div>
       <div class="thresh-grid">
         ${numberFieldHtml('thr-backup', 'backup_reminder', DATA.meta.backup_reminder_days)}
@@ -726,7 +726,6 @@ function bindThresholdsTabEvents(app) {
         ...thr,
         urgent_days: num('thr-urgent', thr.urgent_days),
         soon_days: num('thr-soon', thr.soon_days),
-        plan_days: num('thr-plan', thr.plan_days),
       },
       backup_reminder_days: num('thr-backup', DATA.meta.backup_reminder_days),
       field_sync: { ...fieldSync(), max_stale_days: num('thr-stale', fieldSync().max_stale_days) },

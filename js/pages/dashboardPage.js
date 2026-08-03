@@ -229,15 +229,16 @@ export function renderDashboardPage() {
   const expiredSpark = sparkSeries(daysList, (d) => d < 0);
   const urgentSpark = sparkSeries(daysList, (d) => d >= 0 && d <= thr.urgent_days);
 
-  // Expiries inside the planning window, by certificate type. Bar labels are
-  // translated cert names, so they are display-ready already.
-  const planWindow = thr.plan_days;
+  // Expiries inside the urgent (≤30-day) window, by certificate type. Matches the
+  // "Expiring in ≤30 Days" KPI so the chart is that count broken out per cert.
+  // Bar labels are translated cert names, so they are display-ready already.
+  const certWindow = thr.urgent_days;
   const byCert = {};
   active.forEach((e) => applicableCerts(e).forEach((k) => {
     const cert = e.certificates?.[k];
     if (cert?.na) return; // not needed for this employee — excluded from the chart
     const d = daysUntil(cert?.expiry_date);
-    if (d == null || d < 0 || d > planWindow) return;
+    if (d == null || d < 0 || d > certWindow) return;
     const label = t(CERT_LABEL_KEYS[k]);
     byCert[label] = (byCert[label] || 0) + 1;
   }));
@@ -282,7 +283,7 @@ export function renderDashboardPage() {
 
     <div class="chart-row">
       <div class="card">
-        <h3>${t('chart_by_cert', { days: planWindow })}</h3>
+        <h3>${t('chart_by_cert', { days: certWindow })}</h3>
         ${barChartHtml(byCert, 'primary')}
       </div>
       ${rdtCoverageCardHtml()}

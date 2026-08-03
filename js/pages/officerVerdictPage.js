@@ -27,7 +27,7 @@ function findEmployee(id) {
 
 function thresholds() {
   const meta = OFFICER_STATE.snapshot && OFFICER_STATE.snapshot.meta;
-  return (meta && meta.warning_thresholds) || { urgent_days: 30, soon_days: 60, plan_days: 90 };
+  return (meta && meta.warning_thresholds) || { urgent_days: 30, soon_days: 60 };
 }
 
 export function renderOfficerVerdictPage() {

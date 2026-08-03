@@ -15,7 +15,8 @@ export function deriveCertState(dateStr, thresholds, na) {
   if (d < 0) return 'expired';
   if (d <= thresholds.urgent_days) return 'urgent';
   if (d <= thresholds.soon_days) return 'soon';
-  if (d <= thresholds.plan_days) return 'plan';
+  // No 90-day "plan"/"Renew soon" tier: the ≤60 (soon) and ≤30 (urgent)
+  // notifications are the whole ladder — anything beyond soon_days is valid.
   return 'valid';
 }
 
@@ -48,7 +49,7 @@ export function deriveEmployeeCompliance(employee, thresholds) {
     if (s === 'na') return; // not needed for this employee — excluded from aggregate
     if (stateRank(s) > stateRank(worst)) worst = s;
     if (s === 'expired') expired_count++;
-    else if (s === 'urgent' || s === 'soon' || s === 'plan') expiring_soon_count++;
+    else if (s === 'urgent' || s === 'soon') expiring_soon_count++;
   });
 
   // WAH suspension: an expired medical (MCU) voids the Working-at-Heights certs —
